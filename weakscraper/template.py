@@ -1,6 +1,15 @@
+# -*- coding: utf-8 -*-
+
+# python apps
 import re
 
+# our apps
 from weakscraper import exceptions
+from weakscraper.exceptions import (
+        AttrsError, CompareError, ExcessNodeError, MissingNodeError,
+        NonAtomicChildError, NodetypeError, TagError, TextError,
+        TextExpectedError,
+        )
 
 
 class Template():
@@ -8,142 +17,158 @@ class Template():
         self.functions = functions
 
         if raw_template['nodetype'] == 'tag':
+            self.init_tag(raw_template)
 
-            tag = raw_template['name']
-            assert(tag != 'wp-nugget')
+        elif raw_template['nodetype'] == 'texts-and-nuggets':
+            self.init_texts_and_nuggets(raw_template)
 
-            if tag == 'wp-ignore':
-                self.nodetype = 'ignore'
-                self.params = raw_template['params']
-                return
+        else:
+            msg = 'Unknown nodetype {}.'.format(raw_template['nodetype'])
+            raise ValueError(msg)
 
-            self.nodetype = 'tag'
-            self.name = raw_template['name']
-            self.attrs = raw_template['attrs']
+    def init_tag(self, raw_template):
+        tag = raw_template['name']
+        assert(tag != 'wp-nugget')
+
+        if tag == 'wp-ignore':
+            self.nodetype = 'ignore'
             self.params = raw_template['params']
+            return
 
-            if 'wp-function' in self.params:
-                if 'wp-name' not in self.params:
-                    self.params['wp-name'] = self.params['wp-function']
+        self.nodetype = 'tag'
+        self.name = raw_template['name']
+        self.attrs = raw_template['attrs']
+        self.params = raw_template['params']
 
-            if 'wp-function-attrs' in self.params:
-                if 'wp-name-attrs' not in self.params:
-                    self.params['wp-name-attrs'] = self.params['wp-function-attrs']
+        if 'wp-function' in self.params and 'wp-name' not in self.params:
+            self.params['wp-name'] = self.params['wp-function']
 
-            if 'wp-name-attrs' in self.params:
-                self.params['wp-ignore-attrs'] = None
+        if (
+                'wp-function-attrs' in self.params
+                and 'wp-name-attrs' not in self.params
+                ):
+            self.params['wp-name-attrs'] = self.params['wp-function-attrs']
 
-            if 'wp-ignore-content' in self.params:
-                del self.params['wp-leaf']
-                ignore = Template({'nodetype': 'tag', 'name': 'wp-ignore', 'params': {}}, functions)
-                self.children = [ignore]
-                return
+        if 'wp-name-attrs' in self.params:
+            self.params['wp-ignore-attrs'] = None
 
-            if 'wp-leaf' in self.params:
-                assert(len(raw_template['children']) == 0)
-                return
+        if 'wp-ignore-content' in self.params:
+            del self.params['wp-leaf']
+            ignore = Template(
+                    {'nodetype': 'tag', 'name': 'wp-ignore', 'params': {}},
+                    self.functions,
+                    )
+            self.children = [ignore]
+            return
 
-            text_flags = []
-            for child in raw_template['children']:
-                if child['nodetype'] == 'text':
+        if 'wp-leaf' in self.params:
+            assert(len(raw_template['children']) == 0)
+            return
+
+        text_flags = []
+        for child in raw_template['children']:
+            if child['nodetype'] == 'text':
+                text_flags.append(True)
+            else:
+                assert(child['nodetype'] == 'tag')
+                if child['name'] == 'wp-nugget':
                     text_flags.append(True)
                 else:
-                    assert(child['nodetype'] == 'tag')
-                    if child['name'] == 'wp-nugget':
-                        text_flags.append(True)
-                    else:
-                        text_flags.append(False)
+                    text_flags.append(False)
 
-            self.children = []
-            grandchildren = []
-            for i, child in enumerate(raw_template['children']):
-                if text_flags[i]:
-                    grandchildren.append(child)
-                else:
-                    if grandchildren:
-                        text_template = {'nodetype': 'texts-and-nuggets', 'children': grandchildren}
-                        grandchildren = []
-                        new_child = Template(text_template, functions)
-                        self.children.append(new_child)
-                    new_child = Template(child, functions)
+        self.children = []
+        grandchildren = []
+        for i, child in enumerate(raw_template['children']):
+            if text_flags[i]:
+                grandchildren.append(child)
+            else:
+                if grandchildren:
+                    text_template = {
+                            'nodetype': 'texts-and-nuggets',
+                            'children': grandchildren,
+                            }
+                    grandchildren = []
+                    new_child = Template(text_template, self.functions)
                     self.children.append(new_child)
-            if grandchildren:
-                text_template = {'nodetype': 'texts-and-nuggets', 'children': grandchildren}
-                grandchildren = []
-                new_child = Template(text_template, functions)
+                new_child = Template(child, self.functions)
                 self.children.append(new_child)
+        if grandchildren:
+            text_template = {
+                    'nodetype': 'texts-and-nuggets',
+                    'children': grandchildren,
+                    }
+            grandchildren = []
+            new_child = Template(text_template, self.functions)
+            self.children.append(new_child)
 
+    def init_texts_and_nuggets(self, raw_template):
+        if len(raw_template['children']) == 1:
+            child = raw_template['children'][0]
+            if child['nodetype'] == 'text':
+                self.nodetype = 'text'
+                self.content = child['content']
+
+            elif child['nodetype'] == 'tag':
+                assert(child['name'] == 'wp-nugget')
+                self.nodetype = 'nugget'
+                self.params = child['params']
+
+            else:
+                raise ValueError('Unexpected nodetype.')
             return
 
-        if raw_template['nodetype'] == 'texts-and-nuggets':
-            if len(raw_template['children']) == 1:
-                child = raw_template['children'][0]
-                if child['nodetype'] == 'text':
-                    self.nodetype = 'text'
-                    self.content = child['content']
-                    return
+        self.nodetype = 'texts-and-nuggets'
+        self.regex = ''
+        self.names = []
+        self.functions = []
 
-                if child['nodetype'] == 'tag':
-                    assert(child['name'] == 'wp-nugget')
-                    self.nodetype = 'nugget'
-                    self.params = child['params']
-                    return
-
+        expected_type = raw_template['children'][0]['nodetype']
+        for child in raw_template['children']:
+            if child['nodetype'] != expected_type:
                 raise ValueError('Unexpected nodetype.')
 
-            self.nodetype = 'texts-and-nuggets'
-            self.regex = ''
-            self.names = []
-            self.functions = []
+            elif child['nodetype'] == 'text':
+                self.regex += re.escape(child['content'])
+                expected_type = 'tag'
 
-            expected_type = raw_template['children'][0]['nodetype']
-            for child in raw_template['children']:
-                if child['nodetype'] != expected_type:
-                    raise ValueError('Unexpected nodetype.')
-
-                if child['nodetype'] == 'text':
-                    self.regex += re.escape(child['content'])
-                    expected_type = 'tag'
-                elif child['nodetype'] == 'tag':
-                    self.regex += '(.*)'
-                    name = child['params']['wp-name']
-                    self.names.append(name)
-                    if 'wp-function' in child['params']:
-                        function = child['params']['wp-function']
-                    else:
-                        function = None
-                    self.functions.append(function)
-                    expected_type = 'text'
+            elif child['nodetype'] == 'tag':
+                self.regex += '(.*)'
+                name = child['params']['wp-name']
+                self.names.append(name)
+                if 'wp-function' in child['params']:
+                    function = child['params']['wp-function']
                 else:
-                    raise ValueError('Unexpected nodetype.')
-            return
+                    function = None
+                self.functions.append(function)
+                expected_type = 'text'
 
-        raise ValueError('Unknown nodetype %s.'%raw_template['nodetype'])
+            else:
+                raise ValueError('Unexpected nodetype.')
 
     def f(self, obj):
-        if ('wp-function' in self.params) and ('wp-list' not in self.params):
+        if 'wp-function' in self.params and 'wp-list' not in self.params:
             function_name = self.params['wp-function']
             function = self.functions[function_name]
             return function(obj)
-        return obj
+        else:
+            return obj
 
     def compare_wrapper(self, child, html):
         try:
             results = child.compare(html)
-        except exceptions.CompareError as e:
+        except CompareError as e:
             e.register_parent(self)
             raise e
         return results
-
 
     def compare(self, html):
         results = {}
 
         if self.nodetype == 'text':
             if html['nodetype'] != 'text':
-                raise exceptions.NodetypeError(self, html)
+                raise NodetypeError(self, html)
             if html['content'] != self.content:
-                raise exceptions.TextError(self, html)
+                raise TextError(self, html)
 
         elif self.nodetype == 'nugget':
             content = self.f(html['content'])
@@ -169,11 +194,11 @@ class Template():
 
         elif self.nodetype == 'tag':
             if (html['nodetype'] != 'tag'):
-                raise exceptions.NodetypeError(self, html)
+                raise NodetypeError(self, html)
             if (self.name != html['name']):
-                raise exceptions.TagError(self, html)
+                raise TagError(self, html)
             if not self.attrs_match(html['attrs']):
-                raise exceptions.AttrsError(self, html)
+                raise AttrsError(self, html)
 
             if 'wp-name-attrs' in self.params:
                 name = self.params['wp-name-attrs']
@@ -189,7 +214,7 @@ class Template():
                     name = self.params['wp-name']
                     results[name] = self.f(html['children'])
                 else:
-                    if not 'wp-ignore-content' in self.params:
+                    if 'wp-ignore-content' not in self.params:
                         if 'wp-name' in self.params:
                             name = self.params['wp-name']
                             if len(html['children']) == 0:
@@ -197,10 +222,10 @@ class Template():
                             elif len(html['children']) == 1:
                                 html_child = html['children'][0]
                                 if html_child['nodetype'] != 'text':
-                                    raise exceptions.TextExpectedError(self, html_child)
+                                    raise TextExpectedError(self, html_child)
                                 content = html_child['content']
                             else:
-                                raise exceptions.NonAtomicChildError(self, html)
+                                raise NonAtomicChildError(self, html)
                             results[name] = self.f(content)
                         else:
                             assert('children' not in html)
@@ -215,11 +240,12 @@ class Template():
                 html_n_children = len(html['children'])
 
                 def skip_children(html, html_position):
+                    info = html['children']
                     while (
-                        (html_position < html_n_children) and
-                        (html['children'][html_position]['nodetype'] == 'tag') and
-                        (html['children'][html_position]['name'] == 'script')
-                    ):
+                            html_position < html_n_children 
+                            and html['children'][html_position]['nodetype'] == 'tag' 
+                            and html['children'][html_position]['name'] == 'script'
+                            ):
                         html_position += 1
                     return html_position
 
@@ -231,11 +257,13 @@ class Template():
                     if self_child.nodetype == 'ignore':
                         if 'wp-until' in self_child.params:
                             until = self_child.params['wp-until']
-                            while (html_position < html_n_children) and (not (
-                                (html['children'][html_position]['nodetype'] == 'tag')
-                                and
-                                (html['children'][html_position]['name'] == until)
-                            )):
+                            while (
+                                    html_position < html_n_children
+                                    and not (
+                                            html['children'][html_position]['nodetype'] == 'tag'
+                                            and html['children'][html_position]['name'] == until
+                                            )
+                                    ):
                                 html_position += 1
 
                             self_position += 1
@@ -246,12 +274,15 @@ class Template():
                     elif self_child.nodetype == 'tag' and 'wp-list' in self_child.params:
                         result_list = []
                         while (
-                            (html_position < html_n_children) and
-                            (html['children'][html_position]['nodetype'] == 'tag') and
-                            self_child.attrs_match(html['children'][html_position]['attrs']) and
-                            (html['children'][html_position]['name'] == self_child.name)
-                        ):
-                            result = self.compare_wrapper(self_child, html['children'][html_position])
+                                html_position < html_n_children
+                                and html['children'][html_position]['nodetype'] == 'tag'
+                                and self_child.attrs_match(html['children'][html_position]['attrs'])
+                                and html['children'][html_position]['name'] == self_child.name
+                                ):
+                            result = self.compare_wrapper(
+                                    self_child,
+                                    html['children'][html_position],
+                                    )
                             result_list.append(result)
                             html_position += 1
                         name = self_child.params['wp-name']
@@ -263,28 +294,34 @@ class Template():
                         self_position += 1
 
                     elif self_child.nodetype == 'text':
-                        self.compare_wrapper(self_child, html['children'][html_position])
+                        self.compare_wrapper(
+                                self_child,
+                                html['children'][html_position],
+                                )
                         html_position += 1
                         self_position += 1
 
                     elif self_child.nodetype in ['nugget', 'texts-and-nuggets', 'tag']:
                         if (
-                            (self_child.nodetype == 'tag') and
-                            ('wp-optional' in self_child.params) and
-                            (
-                                (html_position >= html_n_children) or
-                                (html['children'][html_position]['nodetype'] != 'tag') or
-                                (not self_child.attrs_match(html['children'][html_position]['attrs'])) or
-                                (html['children'][html_position]['name'] != self_child.name)
-                            )
-                        ):
+                                self_child.nodetype == 'tag'
+                                and 'wp-optional' in self_child.params
+                                and (
+                                        html_position >= html_n_children
+                                        or html['children'][html_position]['nodetype'] != 'tag'
+                                        or not self_child.attrs_match(html['children'][html_position]['attrs'])
+                                        or html['children'][html_position]['name'] != self_child.name
+                                        )
+                                ):
                             self_position += 1
                         else:
                             if html_position >= html_n_children:
-                                e = exceptions.MissingNodeError(self_child, html)
+                                e = MissingNodeError(self_child, html)
                                 e.register_parent(self)
                                 raise e
-                            result = self.compare_wrapper(self_child, html['children'][html_position])
+                            result = self.compare_wrapper(
+                                    self_child,
+                                    html['children'][html_position],
+                                    )
                             for k, v in result.items():
                                 if k in children_results:
                                     raise ValueError('Key already defined.')
@@ -297,7 +334,9 @@ class Template():
                 html_position = skip_children(html, html_position)
 
                 if html_position != html_n_children:
-                    raise exceptions.ExcessNodeError(self, html['children'][html_position])
+                    raise ExcessNodeError(
+                            self, html['children'][html_position],
+                            )
 
                 if 'wp-name' in self.params:
                     name = self.params['wp-name']
@@ -313,17 +352,12 @@ class Template():
 
         return results
 
-
     def attrs_match(self, attrs):
-        wp_ignore_attrs = ('wp-ignore-attrs' in self.params)
-
-        if not wp_ignore_attrs:
+        if 'wp-ignore-attrs' not in self.params:
             return self.attrs == attrs
 
         for attr, value in self.attrs.items():
-            if not attr in attrs:
+            if attr not in attrs or attrs[attr] != value:
                 return False
-            if attrs[attr] != value:
-                return False
-
-        return True
+        else:
+            return True
