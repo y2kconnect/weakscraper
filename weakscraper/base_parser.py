@@ -7,13 +7,9 @@ from abc import ABCMeta
 
 
 class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
-    err_msg = 'This portion of code should never be reached.'
-
     def __init__(self):
         super().__init__(convert_charrefs=True)
-
-        self.genealogy = []
-        self.genealogy.append([])
+        self.genealogy = [[]]
 
     def assert_complete(self):
         assert(len(self.genealogy) == 1)
@@ -27,12 +23,6 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
         self.assert_complete()
         root_node = self.genealogy[0][0]
         return root_node
-
-    def feed(self, data):
-        super().feed(data)
-
-    def reset(self):
-        super().reset()
 
     def handle_starttag(self, tag, attrs):
         raise NotImplementedError('action must be defined!')
@@ -50,21 +40,6 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
             brothers = self.genealogy[-1]
             myself = {'nodetype': 'text', 'content': text}
             brothers.append(myself)
-
-    def handle_entityref(self, name):
-        raise AssertionError(self.err_msg)
-
-    def handle_charref(self, name):
-        raise AssertionError(self.err_msg)
-
-    def handle_comment(self, text):
-        raise AssertionError(self.err_msg)
-
-    def handle_decl(self, decl):
-        raise NotImplementedError('action must be defined!')
-
-    def handle_pi(self, decl):
-        raise AssertionError('PI.')
 
     def unknown_decl(self, data):
         raise ValueError('Unknown declaration.')

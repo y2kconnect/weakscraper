@@ -20,9 +20,8 @@ class HtmlParser(BaseParser):
         if tag in ['meta', 'link', 'br', 'img', 'input']:
             is_leaf = True
 
-        if tag == 'html':
-            if not is_decl:
-                is_leaf = True
+        if tag == 'html' and not is_decl:
+            is_leaf = True
 
         brothers = self.genealogy[-1]
 
@@ -32,7 +31,7 @@ class HtmlParser(BaseParser):
                 'attrs': attrs_dict,
                 }
         brothers.append(node)
-        if not is_leaf:
+        if not is_leaf or is_decl:
             node['children'] = []
             self.genealogy.append(node['children'])
 
@@ -45,9 +44,6 @@ class HtmlParser(BaseParser):
             raise EndTagDiscrepancy(self.genealogy, parent['name'])
         else:
             self.genealogy.pop()
-
-    def handle_comment(self, text):
-        pass
 
     def handle_decl(self, decl):
         self.handle_starttag('html', [('wp-decl', None)])
