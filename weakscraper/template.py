@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # python apps
-import copy
 import pdb
 import pprint
 import re
@@ -92,9 +91,8 @@ class Template():
             print('\n----------------\nTemplate.process_grandchildren(): ...\n\tarr: {}'.format(arr))
         text_template = {
                 'nodetype': 'texts-and-nuggets',
-                'children': copy.deepcopy(arr),
+                'children': arr,
                 }
-        arr.clear()
         new_child = Template(text_template, self.functions)
         self.children.append(new_child)
         if DEBUG:
@@ -104,6 +102,7 @@ class Template():
         if DEBUG:
             print('\n----------------\nTemplate._init_tag(): ...\n\traw_template:')
             pprint.pprint(raw_template)
+            
         tag = raw_template['name']
         assert(tag != 'wp-nugget')
 
@@ -158,18 +157,20 @@ class Template():
                     if DEBUG:
                         print('\ngrandchildren: {}'.format(grandchildren))
                     self._process_grandchildren(grandchildren)
+                    grandchildren = []
                 new_child = Template(child, self.functions)
                 self.children.append(new_child)
         if grandchildren:
             if DEBUG:
                 print('\ngrandchildren: {}'.format(grandchildren))
             self._process_grandchildren(grandchildren)
+            grandchildren = []
 
     def _init_texts_and_nuggets(self, raw_template):
         if DEBUG:
             print('\n----------------\nTemplate._init_texts_and_nuggets(): ...\n\traw_template:')
             pprint.pprint(raw_template)
-            pdb.set_trace()
+
         if len(raw_template['children']) == 1:
             child = raw_template['children'][0]
             if child['nodetype'] == 'text':
