@@ -14,7 +14,7 @@ from weakscraper.exceptions import (
         )
 
 
-DEBUG = False
+DEBUG = True
 
 
 def _children_skip(info, i, n):
@@ -52,13 +52,13 @@ def _check_flag(child, info, i, n):
 
 
 def _check_text_flag(childrens):
-    if DEBUG:
-        print('\n----------------\n_check_text_flag(): ...\n\tchildrens:')
-        pprint.pprint(childrens)
+    # if DEBUG:
+    #     print('\n----------------\n_check_text_flag(): ...\n\tchildrens:')
+    #     pprint.pprint(childrens)
     arr = []
     for child in childrens:
-        if DEBUG:
-            print("\nchild['nodetype']: {}".format(child['nodetype']))
+        # if DEBUG:
+        #     print("\nchild['nodetype']: {}".format(child['nodetype']))
         assert child['nodetype'] in ('text', 'tag')
 
         if child['nodetype'] == 'text' or child['name'] == 'wp-nugget':
@@ -66,16 +66,16 @@ def _check_text_flag(childrens):
         else:
             flag = False
         arr.append(flag)
-    if DEBUG:
-        print('\narr: {}'.format(arr))
+    # if DEBUG:
+    #     print('\narr: {}'.format(arr))
     return arr
 
 
 class Template():
     def __init__(self, raw_template, functions):
-        if DEBUG:
-            print('\n----------------\nTemplate.__init__(): ...\n\tfunctions: {}\n\traw_template:'.format(functions))
-            pprint.pprint(raw_template)
+        # if DEBUG:
+        #     print('\n----------------\nTemplate.__init__(): ...\n\tfunctions: {}\n\traw_template:'.format(functions))
+        #     pprint.pprint(raw_template)
         self.functions = functions
 
         if raw_template['nodetype'] == 'tag':
@@ -87,22 +87,21 @@ class Template():
             raise ValueError(msg)
 
     def _process_grandchildren(self, arr):
-        if DEBUG:
-            print('\n----------------\nTemplate.process_grandchildren(): ...\n\tarr: {}'.format(arr))
+        # if DEBUG:
+        #     print('\n----------------\nTemplate.process_grandchildren(): ...\n\tarr: {}'.format(arr))
         text_template = {
                 'nodetype': 'texts-and-nuggets',
                 'children': arr,
                 }
         new_child = Template(text_template, self.functions)
         self.children.append(new_child)
-        if DEBUG:
-            print('\nself.children: {}'.format(self.children))
+        # if DEBUG:
+        #     print('\nself.children: {}'.format(self.children))
 
     def _init_tag(self, raw_template):
-        if DEBUG:
-            print('\n----------------\nTemplate._init_tag(): ...\n\traw_template:')
-            pprint.pprint(raw_template)
-            
+        # if DEBUG:
+        #     print('\n----------------\nTemplate._init_tag(): ...\n\traw_template:')
+        #     pprint.pprint(raw_template)
         tag = raw_template['name']
         assert(tag != 'wp-nugget')
 
@@ -140,36 +139,35 @@ class Template():
             return
 
         text_flags = _check_text_flag(raw_template['children'])
-        if DEBUG:
-            print('text_flags: {}'.format(text_flags))
+        # if DEBUG:
+        #     print('text_flags: {}'.format(text_flags))
 
         self.children = []
         grandchildren = []
         for i, child in enumerate(raw_template['children']):
-            if DEBUG:
-                print('\ni: {}, child:'.format(i))
-                pprint.pprint(child)
-
+            # if DEBUG:
+            #     print('\ni: {}, child:'.format(i))
+            #     pprint.pprint(child)
             if text_flags[i]:
                 grandchildren.append(child)
             else:
                 if grandchildren:
-                    if DEBUG:
-                        print('\ngrandchildren: {}'.format(grandchildren))
+                    # if DEBUG:
+                    #     print('\ngrandchildren: {}'.format(grandchildren))
                     self._process_grandchildren(grandchildren)
                     grandchildren = []
                 new_child = Template(child, self.functions)
                 self.children.append(new_child)
         if grandchildren:
-            if DEBUG:
-                print('\ngrandchildren: {}'.format(grandchildren))
+            # if DEBUG:
+            #     print('\ngrandchildren: {}'.format(grandchildren))
             self._process_grandchildren(grandchildren)
             grandchildren = []
 
     def _init_texts_and_nuggets(self, raw_template):
-        if DEBUG:
-            print('\n----------------\nTemplate._init_texts_and_nuggets(): ...\n\traw_template:')
-            pprint.pprint(raw_template)
+        # if DEBUG:
+        #     print('\n----------------\nTemplate._init_texts_and_nuggets(): ...\n\traw_template:')
+        #     pprint.pprint(raw_template)
 
         if len(raw_template['children']) == 1:
             child = raw_template['children'][0]
@@ -370,6 +368,9 @@ class Template():
                 results[k] = v
 
     def _compare_tag(self, html, results):
+        if DEBUG:
+            print('\n----------------\nTemplate._compare_tag(): ...\n\tresults: {}\n\thtml:'.format(results))
+            pprint.pprint(html)
         "self.nodetype == 'tag'"
         if (html['nodetype'] != 'tag'):
             raise NodetypeError(self, html)
@@ -388,6 +389,9 @@ class Template():
             self._tag_children(html, results)
 
     def compare(self, html):
+        if DEBUG:
+            print('\n----------------\nTemplate.compare(): ...\n\thtml:')
+            pprint.pprint(html)
         results = {}
 
         if self.nodetype == 'text':
