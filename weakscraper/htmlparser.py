@@ -1,11 +1,25 @@
 # -*- coding: utf-8 -*-
 
+# python apps
+import pdb
+import pprint
+from collections import OrderedDict
+
 # our apps
 from weakscraper.base_parser import BaseParser
 from weakscraper.exceptions import EndTagDiscrepancy, NodeTypeDiscrepancy
 
+
+DEBUG = False
+
+
 class HtmlParser(BaseParser):
     def handle_starttag(self, tag, attrs):
+        if DEBUG:
+            print('\nHtmlParser.handle_starttag():\n\ttag: "{}"\n\tattrs: {}' \
+                    '\n\tself.genealogy:'.format(tag, attrs))
+            pprint.pprint(self.genealogy)
+            pdb.set_trace()
         attrs_dict = {}
         is_leaf = False
         is_decl = False
@@ -20,9 +34,6 @@ class HtmlParser(BaseParser):
         if tag in ['meta', 'link', 'br', 'img', 'input']:
             is_leaf = True
 
-        if tag == 'html' and not is_decl:
-            is_leaf = True
-
         brothers = self.genealogy[-1]
 
         node = {
@@ -30,12 +41,22 @@ class HtmlParser(BaseParser):
                 'name': tag,
                 'attrs': attrs_dict,
                 }
+        # node = OrderedDict([
+        #         ('nodetype', 'tag'),
+        #         ('name', tag),
+        #         ('attrs', attrs_dict),
+        #         ])
         brothers.append(node)
-        if not is_leaf or is_decl:
+        if not (is_leaf or is_decl):
             node['children'] = []
             self.genealogy.append(node['children'])
 
     def handle_endtag(self, tag):
+        if DEBUG:
+            print('\nHtmlParser.handle_endtag():\n\ttag: "{}"\n\tself.' \
+                    'genealogy:'.format(tag))
+            pprint.pprint(self.genealogy)
+            pdb.set_trace()
         parent = self.genealogy[-2][-1]
 
         if (parent['nodetype'] != 'tag'):
@@ -45,5 +66,3 @@ class HtmlParser(BaseParser):
         else:
             self.genealogy.pop()
 
-    def handle_decl(self, decl):
-        self.handle_starttag('html', [('wp-decl', None)])
