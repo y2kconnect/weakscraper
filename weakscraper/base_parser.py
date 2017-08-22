@@ -18,6 +18,9 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
         super().__init__(convert_charrefs=True)
         self.genealogy = [[]]
 
+    def __str__(self):
+        return '<BaseParser(genealogy={})>'.format(self.genealogy)
+
     def assert_complete(self):
         if DEBUG:
             print('\nBaseParser.assert_complete():\n\tself.genealogy:')
@@ -46,15 +49,6 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
             pprint.pprint(self.genealogy)
             pdb.set_trace()
         root_node = self.assert_complete()
-        return root_node
-
-    def get_result_old(self):
-        if DEBUG:
-            print('\nBaseParser.get_result():\n\tself.genealogy:')
-            pprint.pprint(self.genealogy)
-            pdb.set_trace()
-        self.assert_complete()
-        root_node = self.genealogy[0][0]
         return root_node
 
     def handle_startendtag(self, tag, attrs):

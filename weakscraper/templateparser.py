@@ -3,7 +3,7 @@
 # python apps
 import pdb
 import pprint
-from collections import OrderedDict
+# from collections import OrderedDict
 
 # our apps
 from weakscraper.base_parser import BaseParser
@@ -14,6 +14,9 @@ DEBUG = False
 
 
 class TemplateParser(BaseParser):
+    def __str__(self):
+        return '<TemplateParser(genealogy={})>'.format(self.genealogy)
+
     def handle_starttag(self, tag, attrs):
         attrs_dict = {}
         params = {}
@@ -82,5 +85,4 @@ class TemplateParser(BaseParser):
             raise EndTagError(self.genealogy, parent['name'])
         else:
             self.genealogy.pop()
-
 

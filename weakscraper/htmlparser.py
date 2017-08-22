@@ -14,6 +14,9 @@ DEBUG = False
 
 
 class HtmlParser(BaseParser):
+    def __str__(self):
+        return '<HtmlParser(genealogy={})>'.format(self.genealogy)
+
     def handle_starttag(self, tag, attrs):
         if DEBUG:
             print('\nHtmlParser.handle_starttag():\n\ttag: "{}"\n\tattrs: {}' \
