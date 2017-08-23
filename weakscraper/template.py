@@ -14,7 +14,7 @@ from weakscraper.exceptions import (
         )
 
 
-DEBUG = True
+DEBUG = False
 
 
 def _html_children_skip(info, i, n):
@@ -29,7 +29,8 @@ def _html_children_skip(info, i, n):
 
     while i < n and info[i]['nodetype'] == 'tag' and info[i]['name'] == 'script':
         i += 1
-    print('\n\ti: {}'.format(i))
+    if DEBUG:
+        print('\n\ti: {}'.format(i))
     return i
 
 
@@ -92,12 +93,11 @@ def _html_children_wp_list(obj, tpl_child, info, i, n, children_results):
                 _html_children_wp_list(): ...
                     obj: {}
                     tpl_child: {}
-                    info: {}
                     i: {}
                     n: {}
                     children_results: {}
-                    html:'''.format(obj, tpl_child, info, i, n, children_results))
-        pprint.pprint(html)
+                    info:'''.format(obj, tpl_child, i, n, children_results))
+        pprint.pprint(info)
 
     arr = []
     while _check_flag(tpl_child, info, i, n):
@@ -531,8 +531,8 @@ class Template:
                 else:
                     html_i = html_n
             elif tpl_child.nodetype == 'tag' and 'wp-list' in tpl_child.params:
-                html_i = _html_children_wp_list(self, tpl_child, info, html_i,
-                        html_n, children_results)
+                html_i, children_results = _html_children_wp_list(self,
+                        tpl_child, info, html_i, html_n, children_results)
             elif tpl_child.nodetype == 'text':
                 self._compare_wrapper(tpl_child, info[html_i])
                 html_i += 1

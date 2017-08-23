@@ -10,7 +10,7 @@ from weakscraper.htmlparser import HtmlParser
 from weakscraper.templateparser import TemplateParser
 
 
-DEBUG = True
+DEBUG = False
 
 
 class WeakScraper:
