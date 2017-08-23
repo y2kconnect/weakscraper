@@ -22,7 +22,7 @@ class HtmlParser(BaseParser):
             print('\nHtmlParser.handle_starttag():\n\ttag: "{}"\n\tattrs: {}' \
                     '\n\tself.genealogy:'.format(tag, attrs))
             pprint.pprint(self.genealogy)
-            pdb.set_trace()
+            # pdb.set_trace()
         attrs_dict = {}
         is_leaf = False
         is_decl = False
@@ -59,7 +59,7 @@ class HtmlParser(BaseParser):
             print('\nHtmlParser.handle_endtag():\n\ttag: "{}"\n\tself.' \
                     'genealogy:'.format(tag))
             pprint.pprint(self.genealogy)
-            pdb.set_trace()
+            # pdb.set_trace()
         parent = self.genealogy[-2][-1]
 
         if (parent['nodetype'] != 'tag'):

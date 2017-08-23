@@ -25,7 +25,7 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
         if DEBUG:
             print('\nBaseParser.assert_complete():\n\tself.genealogy:')
             pprint.pprint(self.genealogy)
-            pdb.set_trace()
+            # pdb.set_trace()
         assert(len(self.genealogy) == 1)
         root_node = None
         for root_node in self.genealogy[0]:
@@ -35,19 +35,11 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
             raise AssertCompleteFailure(self.genealogy)
         return root_node
 
-    def assert_complete_old(self):
-        assert(len(self.genealogy) == 1)
-        if len(self.genealogy[0]) != 1:
-            raise AssertCompleteFailure(self.genealogy)
-        root_node = self.genealogy[0][0]
-        assert(root_node['nodetype'] == 'tag')
-        assert(root_node['name'] == 'html')
-
     def get_result(self):
         if DEBUG:
             print('\nBaseParser.get_result():\n\tself.genealogy:')
             pprint.pprint(self.genealogy)
-            pdb.set_trace()
+            # pdb.set_trace()
         root_node = self.assert_complete()
         return root_node
 
@@ -71,11 +63,18 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
             print('\nBaseParser.handle_decl():\n\tdecl: "{}"\n\tself.genealogy:' \
                     .format(decl))
             pprint.pprint(self.genealogy)
-            pdb.set_trace()
-        self.handle_starttag('doctype', [('wp-decl', None)])
+            # pdb.set_trace()
+        arr = decl.lower().split()
+        if arr:
+            self.handle_starttag(arr[0], [('wp-decl', None)])
 
     def unknown_decl(self, data):
-        raise ValueError('Unknown declaration.')
+        if DEBUG:
+            print('\nBaseParser.unknown_decl():\n\data: "{}"\n\tself.genealogy:' \
+                    .format(decl))
+            pprint.pprint(self.genealogy)
+        # raise ValueError('Unknown declaration.')
+        self.handle_decl(data)
 
     def handle_starttag(self, tag, attrs):
         raise NotImplementedError('action must be defined!')
