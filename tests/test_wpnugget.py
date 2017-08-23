@@ -7,6 +7,7 @@ class TestWPNugget(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>begining<wp-nugget wp-name="info1"/>middle<wp-nugget wp-name="info2"/>end</tag1>
               <tag2><wp-nugget wp-name="info3"/>end</tag2>
@@ -20,6 +21,7 @@ class TestWPNugget(unittest.TestCase):
     def test_1(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>beginingABCmiddleDEFend</tag1>
               <tag2>GHIend</tag2>

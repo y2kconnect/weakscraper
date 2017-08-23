@@ -7,6 +7,7 @@ class TestWPName(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
+            <html>
             <head wp-name="head">
               <title wp-name="title"/>
             </head>
@@ -19,6 +20,7 @@ class TestWPName(unittest.TestCase):
     def test_match(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <head>
               <title>Title</title>
             </head>

@@ -7,6 +7,7 @@ class TestWPList(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
+            <html>
             <body>
               <div wp-function="sum" wp-list>
                 <number wp-name="number" wp-function="int"/>
@@ -30,6 +31,7 @@ class TestWPList(unittest.TestCase):
     def test_empty(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
             </body>
             </html>
@@ -43,6 +45,7 @@ class TestWPList(unittest.TestCase):
     def test_sum(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <div>
                 <number>12</number>

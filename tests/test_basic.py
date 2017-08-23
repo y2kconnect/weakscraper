@@ -7,12 +7,13 @@ class TestBasic(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
-            <head>
-              <title>Title</title>
-            </head>
-            <body attr1="val1" attr2="val2">
-              <div>Hi !</div>
-            </body>
+            <html>
+              <head>
+                <title>Title</title>
+              </head>
+              <body attr1="val1" attr2="val2">
+                <div>Hi !</div>
+              </body>
             </html>
             """
 
@@ -22,6 +23,7 @@ class TestBasic(unittest.TestCase):
     def test_match(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <head><title>Title
               </title>
             </head>
@@ -44,6 +46,7 @@ class TestBasic(unittest.TestCase):
     def test_datanomatch(self):
         content =  """
             <!DOCTYPE html>
+            <html>
             <head>
               <title>Title</title>
             </head>
@@ -66,6 +69,7 @@ class TestBasic(unittest.TestCase):
     def test_tagnomatch(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <head>
               <title>Title</title>
             </head>
@@ -88,6 +92,7 @@ class TestBasic(unittest.TestCase):
     def test_attrnomatch(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <head>
               <title>Title</title>
             </head>

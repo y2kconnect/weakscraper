@@ -7,6 +7,7 @@ class TestWPOptional(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1 wp-optional>
                 some text
@@ -22,6 +23,7 @@ class TestWPOptional(unittest.TestCase):
     def test_empty(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
             </body>
             </html>
@@ -35,6 +37,7 @@ class TestWPOptional(unittest.TestCase):
     def test_first(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>
                 some text
@@ -51,6 +54,7 @@ class TestWPOptional(unittest.TestCase):
     def test_second(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag2>some text
               </tag2>

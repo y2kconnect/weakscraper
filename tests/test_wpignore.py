@@ -7,6 +7,7 @@ class TestWPIgnore(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>a</tag1>
               <wp-ignore wp-until="tag4"/>
@@ -24,6 +25,7 @@ class TestWPIgnore(unittest.TestCase):
     def test_until(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>a</tag1>
               <tag2><tag21>some text</tag21></tag2>
@@ -43,6 +45,7 @@ class TestWPIgnore(unittest.TestCase):
     def test_attr(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>a</tag1>
               <tag4 attr2="value" attr1="value">b</tag4>
@@ -60,6 +63,7 @@ class TestWPIgnore(unittest.TestCase):
     def test_content(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>a</tag1>
               <tag4 attr1="value">b</tag4>
@@ -77,6 +81,7 @@ class TestWPIgnore(unittest.TestCase):
     def test_attr_and_content(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>a</tag1>
               <tag4 attr1="value">b</tag4>
@@ -97,6 +102,7 @@ class TestWPIgnore(unittest.TestCase):
     def test_ignore(self):
         content = """
             <!DOCTYPE html>
+            <html>
             <body>
               <tag1>a</tag1>
               <tag4 attr1="value">b</tag4>
