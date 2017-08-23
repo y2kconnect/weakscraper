@@ -348,8 +348,8 @@ class Template:
                 else:
                     html_i = html_n
             elif tpl_child.nodetype == 'tag' and 'wp-list' in tpl_child.params:
-                html_i = _html_children_wp_list(self, tpl_child, info, html_i,
-                        html_n, children_results)
+                html_i, children_results = _html_children_wp_list(self,
+                        tpl_child, info, html_i, html_n, children_results)
             elif tpl_child.nodetype == 'text':
                 self._compare_wrapper(tpl_child, info[html_i])
                 html_i += 1
@@ -359,7 +359,7 @@ class Template:
             else:
                 raise ValueError('Unknown child type.')
 
-        html_i = _html_children_skip(html, html_i, html_n)
+        html_i = _html_children_skip(info, html_i, html_n)
 
         if html_i != html_n:
             raise ExcessNodeError(self, info[html_i])
