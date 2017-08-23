@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # python apps
-import collections
 import html.parser
-import pdb
-import pprint
 from abc import ABCMeta
 
 # out apps
@@ -22,10 +19,6 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
         return '<BaseParser(genealogy={})>'.format(self.genealogy)
 
     def assert_complete(self):
-        if DEBUG:
-            print('\nBaseParser.assert_complete():\n\tself.genealogy:')
-            pprint.pprint(self.genealogy)
-            # pdb.set_trace()
         assert(len(self.genealogy) == 1)
         root_node = None
         for root_node in self.genealogy[0]:
@@ -36,10 +29,6 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
         return root_node
 
     def get_result(self):
-        if DEBUG:
-            print('\nBaseParser.get_result():\n\tself.genealogy:')
-            pprint.pprint(self.genealogy)
-            # pdb.set_trace()
         root_node = self.assert_complete()
         return root_node
 
@@ -48,10 +37,6 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
         self.handle_starttag(tag, attrs)
 
     def handle_data(self, text):
-        if DEBUG:
-            print('\nBaseParser.handle_data():\n\ttext: {}\n\tself.genealogy:' \
-                    .format(text))
-            pprint.pprint(self.genealogy)
         text = text.strip(' \t\n\r')
         if text:
             brothers = self.genealogy[-1]
@@ -59,21 +44,11 @@ class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
             brothers.append(myself)
 
     def handle_decl(self, decl):
-        if DEBUG:
-            print('\nBaseParser.handle_decl():\n\tdecl: "{}"\n\tself.genealogy:' \
-                    .format(decl))
-            pprint.pprint(self.genealogy)
-            # pdb.set_trace()
         arr = decl.lower().split()
         if arr:
             self.handle_starttag(arr[0], [('wp-decl', None)])
 
     def unknown_decl(self, data):
-        if DEBUG:
-            print('\nBaseParser.unknown_decl():\n\data: "{}"\n\tself.genealogy:' \
-                    .format(decl))
-            pprint.pprint(self.genealogy)
-        # raise ValueError('Unknown declaration.')
         self.handle_decl(data)
 
     def handle_starttag(self, tag, attrs):
