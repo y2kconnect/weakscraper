@@ -21,6 +21,7 @@ def _html_children_skip(info, i, n):
     if DEBUG:
         print('''
                 ----------------
+                _html_children_skip(): ...
                     i: {}
                     n: {}
                     info:'''.format(i, n))
@@ -55,7 +56,7 @@ def _html_children_tag(obj, tpl_child, html, i, n, children_results):
     if DEBUG:
         print('''
                 ----------------
-                Template._html_children_tag(): ...
+                _html_children_tag(): ...
                     obj: {}
                     tpl_child: {}
                     i: {}
@@ -541,7 +542,7 @@ class Template:
             else:
                 raise ValueError('Unknown child type.')
 
-        html_i = _html_children_skip(html, html_i, html_n)
+        html_i = _html_children_skip(info, html_i, html_n)
 
         if html_i != html_n:
             raise ExcessNodeError(self, info[html_i])
