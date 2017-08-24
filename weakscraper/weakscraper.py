@@ -10,9 +10,9 @@ class WeakScraper:
     def __init__(self, template_string, functions=None):
         template_parser = TemplateParser()
         template_parser.feed(template_string)
-        raw_template = template_parser.get_result()
+        tpl_tree = template_parser.get_result()
 
-        self.template = Template(raw_template, functions)
+        self.template = Template(tpl_tree, functions)
 
     def scrap(self, html):
         html_parser = HtmlParser()

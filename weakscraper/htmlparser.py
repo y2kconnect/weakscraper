@@ -13,6 +13,10 @@ class HtmlParser(BaseParser):
         attrs_dict = {}
         is_leaf = False
         is_decl = False
+
+        if tag in ('meta', 'img', 'hr', 'br') and 'wp-leaf' not in attrs:
+            attrs.append(('wp-leaf', None))
+
         for k, v in attrs:
             if k == 'wp-leaf':
                 is_leaf = True

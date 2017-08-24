@@ -246,6 +246,8 @@ class Template:
             self._compare__nugget(html, results)
         elif self.nodetype == 'texts-and-nuggets':
             self._compare__texts_and_nuggets(html, results)
+        elif 'children' not in html:
+            pass
         elif self.nodetype == 'tag':
             self._compare__tag(html, results)
         else:
