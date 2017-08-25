@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # python apps
+import pprint
 import re
 
 # our apps
@@ -12,7 +13,7 @@ from weakscraper.exceptions import (
         )
 
 
-DEBUG = False
+DEBUG = True
 
 
 def _html_children_skip(info, i, n):
