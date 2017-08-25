@@ -8,12 +8,12 @@ class TestWPList(unittest.TestCase):
         template_string = """
             <!DOCTYPE html>
             <html>
-            <body>
-              <div wp-function="sum" wp-list>
-                <number wp-name="number" wp-function="int"/>
-              </div>
-              <number wp-function="str_sum" wp-list/>
-            </body>
+                <body>
+                    <div wp-function="sum" wp-list>
+                        <number wp-name="number" wp-function="int"/>
+                    </div>
+                    <number wp-function="str_sum" wp-list/>
+                </body>
             </html>
             """
 
@@ -32,8 +32,8 @@ class TestWPList(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <body>
-            </body>
+                <body>
+                </body>
             </html>
             """
 
@@ -46,17 +46,17 @@ class TestWPList(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <body>
-              <div>
-                <number>12</number>
-              </div>
-              <div>
-                <number>-5</number>
-              </div>
-              <number>1</number>
-              <number>2</number>
-              <number>3</number>
-            </body>
+                <body>
+                    <div>
+                        <number>12</number>
+                    </div>
+                    <div>
+                        <number>-5</number>
+                    </div>
+                    <number>1</number>
+                    <number>2</number>
+                    <number>3</number>
+                </body>
             </html>
             """
 

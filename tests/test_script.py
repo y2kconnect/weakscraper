@@ -8,10 +8,10 @@ class TestScript(unittest.TestCase):
         template_string = """
             <!DOCTYPE html>
             <html>
-              <body>
-                <tag1>a</tag1>
-                <tag2>b</tag2>
-              </body>
+                <body>
+                    <tag1>a</tag1>
+                    <tag2>b</tag2>
+                </body>
             </html>
             """
 
@@ -22,11 +22,11 @@ class TestScript(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-              <body>
-                <script>random script</script>
-                <tag1>a</tag1>
-                <tag2>b</tag2>
-              </body>
+                <body>
+                    <script>random script</script>
+                    <tag1>a</tag1>
+                    <tag2>b</tag2>
+                </body>
             </html>
             """
 
@@ -39,11 +39,11 @@ class TestScript(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-              <body>
-                <tag1>a</tag1>
-                <script>random script</script>
-                <tag2>b</tag2>
-              </body>
+                <body>
+                    <tag1>a</tag1>
+                    <script>random script</script>
+                    <tag2>b</tag2>
+                </body>
             </html>
             """
 
@@ -56,11 +56,11 @@ class TestScript(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-              <body>
-                <tag1>a</tag1>
-                <tag2>b</tag2>
-                <script>random script</script>
-              </body>
+                <body>
+                    <tag1>a</tag1>
+                    <tag2>b</tag2>
+                    <script>random script</script>
+                </body>
             </html>
             """
 

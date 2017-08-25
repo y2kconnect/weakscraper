@@ -8,12 +8,12 @@ class TestWPOptional(unittest.TestCase):
         template_string = """
             <!DOCTYPE html>
             <html>
-            <body>
-              <tag1 wp-optional>
-                some text
-              </tag1>
-              <tag2 wp-name="tag2" wp-optional/>
-            </body>
+                <body>
+                    <tag1 wp-optional>
+                        some text
+                    </tag1>
+                    <tag2 wp-name="tag2" wp-optional/>
+                </body>
             </html>
             """
 
@@ -24,8 +24,8 @@ class TestWPOptional(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <body>
-            </body>
+                <body>
+                </body>
             </html>
             """
 
@@ -38,11 +38,11 @@ class TestWPOptional(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <body>
-              <tag1>
-                some text
-              </tag1>
-            </body>
+                <body>
+                    <tag1>
+                        some text
+                    </tag1>
+                </body>
             </html>
             """
 
@@ -55,10 +55,10 @@ class TestWPOptional(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <body>
-              <tag2>some text
-              </tag2>
-            </body>
+                <body>
+                    <tag2>some text
+                    </tag2>
+                </body>
             </html>
             """
 

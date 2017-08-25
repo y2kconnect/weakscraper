@@ -8,12 +8,12 @@ class TestBasic(unittest.TestCase):
         template_string = """
             <!DOCTYPE html>
             <html>
-              <head>
-                <title>Title</title>
-              </head>
-              <body attr1="val1" attr2="val2">
-                <div>Hi !</div>
-              </body>
+                <head>
+                    <title>Title</title>
+                </head>
+                <body attr1="val1" attr2="val2">
+                    <div>Hi !</div>
+                </body>
             </html>
             """
 
@@ -24,18 +24,18 @@ class TestBasic(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <head><title>Title
-              </title>
-            </head>
+                <head><title>Title
+                    </title>
+                </head>
+                <body attr2="val2" attr1="val1">
 
 
-            <body attr2="val2" attr1="val1">
-            <div>
+                <div>
 
-                Hi !
-              </div>
-            </body>
-              </html>
+                        Hi !
+                    </div>
+                </body>
+            </html>
             """
 
         result_data = self.scraper.scrap(content)
@@ -47,14 +47,14 @@ class TestBasic(unittest.TestCase):
         content =  """
             <!DOCTYPE html>
             <html>
-            <head>
-              <title>Title</title>
-            </head>
-            <body attr2="val2" attr1="val1">
-              <div>
-                Hello !
-              </div>
-            </body>
+                <head>
+                    <title>Title</title>
+                </head>
+                <body attr2="val2" attr1="val1">
+                    <div>
+                        Hello !
+                    </div>
+                </body>
             </html>
             """
 
@@ -70,14 +70,14 @@ class TestBasic(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <head>
-              <title>Title</title>
-            </head>
-            <body attr2="val2" attr1="val1">
-              <q>
-                Hi !
-              </q>
-            </body>
+                <head>
+                    <title>Title</title>
+                </head>
+                <body attr2="val2" attr1="val1">
+                    <q>
+                        Hi !
+                    </q>
+                </body>
             </html>
             """
 
@@ -93,12 +93,12 @@ class TestBasic(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <head>
-              <title>Title</title>
-            </head>
-            <body attr3="val1" attr2="val2">
-              <div>Hi !</div>
-            </body>
+                <head>
+                    <title>Title</title>
+                </head>
+                <body attr3="val1" attr2="val2">
+                    <div>Hi !</div>
+                </body>
             </html>
             """
 

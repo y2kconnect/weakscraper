@@ -8,9 +8,9 @@ class TestWPName(unittest.TestCase):
         template_string = """
             <!DOCTYPE html>
             <html>
-            <head wp-name="head">
-              <title wp-name="title"/>
-            </head>
+                <head wp-name="head">
+                    <title wp-name="title"/>
+                </head>
             </html>
             """
 
@@ -21,9 +21,9 @@ class TestWPName(unittest.TestCase):
         content = """
             <!DOCTYPE html>
             <html>
-            <head>
-              <title>Title</title>
-            </head>
+                <head>
+                    <title>Title</title>
+                </head>
             </html>
             """
 
