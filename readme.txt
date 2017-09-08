@@ -14,6 +14,10 @@ A weakscraper template is like a regular HTML file with some keywords to tell wh
         This attribute signals that everything under this tag is to be kept.
         此属性表示要保留此标记下的所有内容。
 
+    wp-recursive-text：
+        This attribute signals that everything text under this tag is to be kept.
+        此属性表示要保留此标记下的所有文本内容。
+
     wp-list：
         This attribute signals that this tag may be found zero, one or several time.
         该属性表示该标签可能被发现为零次，一次或几次。

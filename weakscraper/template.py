@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # python apps
+import pdb
 import pprint
 import re
 
@@ -13,7 +14,7 @@ from weakscraper.exceptions import (
         )
 
 
-DEBUG = True
+DEBUG = False
 
 
 def _html_children_skip(info, i, n):
@@ -165,7 +166,7 @@ class Template:
     def __repr__(self):
         keys = (
                 'nodetype', 'name', 'names', 'attrs', 'children',
-                'functions', 'params',
+                'functions', 'params', 'regex',
                 )
         arr = []
         for key in keys:
@@ -470,6 +471,11 @@ class Template:
         if DEBUG:
             print('\n\tresults: {}'.format(results))
 
+    def _tpl__wp_recursive(self, html):
+        name = self.params['wp-name']
+        arr = self._f(html['children'])
+        return (name, arr)
+
     def _tpl__wp_leaf(self, html, results):
         if DEBUG:
             print('''
@@ -480,26 +486,24 @@ class Template:
                         html:'''.format(self, results))
             pprint.pprint(html)
 
-        if 'wp-recursive' in self.params:
-            name = self.params['wp-name']
-            results[name] = self._f(html['children'])
+        if 'wp-recursive-leaf' in self.params:
+            name, arr = self._tpl__wp_recursive(html)
+            if 'wp-recursive-text' in self.params:
+                arr = [x['content'] for x in arr if x['nodetype'] == 'text']
+            results[name] = arr
         elif 'wp-ignore-content' not in self.params:
             if 'wp-name' in self.params:
-                try:
-                    name = self.params['wp-name']
-                    if len(html['children']) == 0:
-                        content = ''
-                    elif len(html['children']) == 1:
-                        html_child = html['children'][0]
-                        if html_child['nodetype'] != 'text':
-                            raise TextExpectedError(self, html_child)
-                        content = html_child['content']
-                    else:
-                        raise NonAtomicChildError(self, html)
-                    results[name] = self._f(content)
-                except NonAtomicChildError:
-                    # html['children']与tpl['children']不匹配
-                    results[name] = html['children']
+                name = self.params['wp-name']
+                if len(html['children']) == 0:
+                    content = ''
+                elif len(html['children']) == 1:
+                    html_child = html['children'][0]
+                    if html_child['nodetype'] != 'text':
+                        raise TextExpectedError(self, html_child)
+                    content = html_child['content']
+                else:
+                    raise NonAtomicChildError(self, html)
+                results[name] = self._f(content)
             else:
                 assert('children' not in html)
         if DEBUG:

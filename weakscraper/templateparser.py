@@ -13,8 +13,8 @@ class TemplateParser(BaseParser):
         attrs_dict = {}
         params = {}
         possible_params = [
-                'wp-decl', 'wp-leaf',
-                'wp-name', 'wp-recursive', 'wp-list', 'wp-function',
+                'wp-decl', 'wp-leaf', 'wp-list',
+                'wp-name', 'wp-recursive', 'wp-recursive-text', 'wp-function',
                 'wp-optional', 'wp-until',
                 'wp-ignore', 'wp-ignore-attrs', 'wp-ignore-content',
                 'wp-name-attrs', 'wp-function-attrs',
@@ -28,9 +28,10 @@ class TemplateParser(BaseParser):
                 if k == 'wp-ignore':
                     params['wp-ignore-content'] = None
                     params['wp-ignore-attrs'] = None
-                elif k == 'wp-recursive-leaf':
+                elif k in ('wp-recursive', 'wp-recursive-text'):
                     params['wp-leaf'] = None
                     params['wp-recursive-leaf'] = None
+                    params[k] = v
                 else:
                     params[k] = v
             elif k in attrs_dict:
