@@ -13,11 +13,13 @@ class TemplateParser(BaseParser):
         attrs_dict = {}
         params = {}
         possible_params = [
-                'wp-decl', 'wp-leaf', 'wp-list',
+                'wp-decl', 'wp-leaf',
                 'wp-name', 'wp-recursive', 'wp-recursive-text', 'wp-function',
+                'wp-list',
                 'wp-optional', 'wp-until',
                 'wp-ignore', 'wp-ignore-attrs', 'wp-ignore-content',
                 'wp-name-attrs', 'wp-function-attrs',
+                'wp-attr-name-dict',
                 ]
 
         if tag in ('meta', 'img', 'hr', 'br') and 'wp-leaf' not in attrs:
@@ -32,6 +34,8 @@ class TemplateParser(BaseParser):
                     params['wp-leaf'] = None
                     params['wp-recursive-leaf'] = None
                     params[k] = v
+                elif k == 'wp-attr-name-dict':
+                    params[k] = eval(v)
                 else:
                     params[k] = v
             elif k in attrs_dict:

@@ -448,6 +448,7 @@ class Template:
         else:
             # look at the children
             self._tpl__children(html, results)
+
         if DEBUG:
             print('\n\tresults: {}'.format(results))
 
@@ -492,6 +493,13 @@ class Template:
                 arr = [x['content'] for x in arr if x['nodetype'] == 'text']
             results[name] = arr
         elif 'wp-ignore-content' not in self.params:
+            flag = False
+
+            if 'wp-attr-name-dict' in self.params:
+                info = self._tpl__attr_name_dict(html)
+                results.update(info)
+                flag = True
+
             if 'wp-name' in self.params:
                 name = self.params['wp-name']
                 if len(html['children']) == 0:
@@ -504,7 +512,9 @@ class Template:
                 else:
                     raise NonAtomicChildError(self, html)
                 results[name] = self._f(content)
-            else:
+                flag = True
+
+            if not flag:
                 assert('children' not in html)
         if DEBUG:
             print('\n\tresults: {}'.format(results))
@@ -569,17 +579,44 @@ class Template:
                     ----------------
                     Template._attrs_match(): ...
                         self: {}
-                        html_attrs:'''.format(self, html_attrs))
+                        html_attrs:'''.format(self))
+            pprint.pprint(html_attrs)
 
         ret = True
-        if 'wp-ignore-attrs' not in self.params:
-            ret = self.attrs == html_attrs
-        else:
+
+        if 'wp-ignore-attrs' in self.params:
             for key, value in self.attrs.items():
                 if key not in html_attrs or html_attrs[key] != value:
                     ret = False
                     break
+        elif 'wp-attr-name-dict' in self.params:
+            ret = any([
+                    True
+                    for s in self.params['wp-attr-name-dict']
+                        if s in html_attrs
+                    ])
+        else:
+            ret = self.attrs == html_attrs
+
         if DEBUG:
             print('\n\tret: {}'.format(ret))
         return ret
+
+    def _tpl__attr_name_dict(self, html):
+        if DEBUG:
+            print('''
+                    ----------------
+                    Template._tpl__attr_name_list(): ...
+                        self: {}
+                        html:'''.format(self))
+            pprint.pprint(html)
+
+        attrs_html = html['attrs']
+        info = {
+                key: attrs_html[name]
+                for (name, key) in self.params['wp-attr-name-dict'].items()
+                    if name in attrs_html
+                }
+        return info
+
 

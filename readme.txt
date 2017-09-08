@@ -60,3 +60,8 @@ A weakscraper template is like a regular HTML file with some keywords to tell wh
         This attribute enables to process the attributes dictionary with a callback.
         该属性使得能够使用回调来处理属性字典。
 
+    wp-attr-name-dict = "{'attr-name': 'key'}"
+        The attribute indicates that the value of the attribute name of the tag is read.
+        该属性表示，读取该标签的属性名对应的值。
+        
+
