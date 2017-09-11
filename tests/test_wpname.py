@@ -16,6 +16,18 @@ class TestWPName(unittest.TestCase):
 
         self.scraper = weakscraper.WeakScraper(template_string)
 
+    def test_empty(self):
+        content = """
+            <!DOCTYPE html>
+            <html>
+                <head>
+                </head>
+            </html>
+            """
+
+        result_data = self.scraper.scrap(content)
+
+        self.assertEqual(result_data, {'head': {}})
 
     def test_match(self):
         content = """

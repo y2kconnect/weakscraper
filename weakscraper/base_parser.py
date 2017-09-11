@@ -11,9 +11,10 @@ DEBUG = False
 
 
 class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
-    def __init__(self):
+    def __init__(self, debug=False):
         super().__init__(convert_charrefs=True)
         self.genealogy = [[]]
+        self.debug = debug
 
     def __str__(self):
         return '<BaseParser(genealogy={})>'.format(self.genealogy)

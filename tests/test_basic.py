@@ -107,4 +107,4 @@ class TestBasic(unittest.TestCase):
         except exceptions.AttrsError:
             return
 
-        self.assertTrue(False)
+        self.assertEqual(result_data, {})
