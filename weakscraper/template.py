@@ -384,8 +384,9 @@ class Template:
 
         if html['nodetype'] != 'text':
             raise NodetypeError(self, html)
-        if html['content'] != self.content:
-            raise TextError(self, html)
+        # 忽略，因格式重排而出现的内容不一致
+        # if html['content'] != self.content:
+        #     raise TextError(self, html)
 
     def _compare__nugget(self, html, results):
         'self.nodetype == "nugget"'
@@ -615,7 +616,9 @@ class Template:
                         if s in html_attrs
                     ])
         else:
-            ret = self.attrs == html_attrs
+            # 目前，只比较key，不比较value
+            # ret = self.attrs == html_attrs
+            ret = self.attrs.keys() == html_attrs.keys()
 
         if self.debug:
             print('\n\tret: {}'.format(ret))
