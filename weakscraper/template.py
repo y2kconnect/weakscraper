@@ -491,6 +491,17 @@ class Template:
         arr = self._f(html['children'])
         return (name, arr)
 
+    def _get_all_content(self, html):
+        'wp-recursive-text: 获取所有的文字内容'
+        arr = []
+        for x in html:
+            if 'content' in x:
+                arr.append(x['content'])
+            elif 'children' in x:
+                y = self._get_all_content(x['children'])
+                arr.extend(y)
+        return arr
+
     def _tpl__wp_leaf(self, html, results):
         if self.debug:
             print('''
@@ -504,7 +515,7 @@ class Template:
         if 'wp-recursive-leaf' in self.params:
             name, arr = self._tpl__wp_recursive(html)
             if 'wp-recursive-text' in self.params:
-                arr = [x['content'] for x in arr if x['nodetype'] == 'text']
+                arr = self._get_all_content(arr)
             results[name] = arr
         elif 'wp-ignore-content' not in self.params:
             flag = False

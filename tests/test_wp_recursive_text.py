@@ -3,7 +3,7 @@ import unittest
 import weakscraper
 from weakscraper import exceptions
 
-class TestWPRecursive(unittest.TestCase):
+class TestWPRecursiveText(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
@@ -29,6 +29,9 @@ class TestWPRecursive(unittest.TestCase):
                             Hi !<br>
                             1234<hr>
                             test
+                            <p>
+                                abcdefg
+                            </p>
                         </p>
                     </div>
                 </body>
@@ -42,7 +45,8 @@ class TestWPRecursive(unittest.TestCase):
                 "content": [
                     "Hi !",
                     "1234",
-                    "test"
+                    "test",
+                    "abcdefg",
                 ]
             }
         }
