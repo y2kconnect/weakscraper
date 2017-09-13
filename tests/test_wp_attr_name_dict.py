@@ -55,4 +55,33 @@ class TestWPAttrNameDict(unittest.TestCase):
 
         self.assertEqual(result_data, info)
 
+    def test_match_2(self):
+        template_string = """
+            <!DOCTYPE html>
+            <html>
+                <body>
+                    <a wp-attr-name-dict="{'href': 'url', 'class': 'class_name', 'howto': 'other'}" />
+                </body>
+            </html>
+            """
+
+        content = """
+            <!DOCTYPE html>
+            <html>
+                <body>
+                    <a href='http://www.163.com' class='test_01' trage='_blank'>test</a>
+                </body>
+            </html>
+            """
+
+        scraper = weakscraper.WeakScraper(template_string)
+        result_data = scraper.scrap(content)
+
+        info = {
+            "url": "http://www.163.com",
+            "class_name": "test_01",
+            }
+
+        self.assertEqual(result_data, info)
+
 
