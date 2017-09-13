@@ -362,8 +362,6 @@ class Template:
             self._compare__nugget(html, results)
         elif self.nodetype == 'texts-and-nuggets':
             self._compare__texts_and_nuggets(html, results)
-        elif 'children' not in html:
-            pass
         elif self.nodetype == 'tag':
             self._compare__tag(html, results)
         else:
@@ -373,7 +371,9 @@ class Template:
         return results
 
     def _compare__text(self, html):
-        'self.nodetype == "text"'
+        ''' self.nodetype == "text"
+        Ignore, format reorder and the content is inconsistent
+        '''
         if self.debug:
             print('''
                     ----------------
@@ -384,9 +384,6 @@ class Template:
 
         if html['nodetype'] != 'text':
             raise NodetypeError(self, html)
-        # 忽略，因格式重排而出现的内容不一致
-        # if html['content'] != self.content:
-        #     raise TextError(self, html)
 
     def _compare__nugget(self, html, results):
         'self.nodetype == "nugget"'
@@ -450,8 +447,7 @@ class Template:
         elif (self.name != html['name']):
             raise TagError(self, html)
         elif not self._attrs_match(html['attrs']):
-            # tpl中定义的属性，在html不存在
-            # raise AttrsError(self, html)
+            # The properties defined in the template do not exist in the HTML
             return
 
         if 'wp-name-attrs' in self.params:
@@ -459,8 +455,8 @@ class Template:
 
         if 'wp-leaf' in self.params:
             self._tpl__wp_leaf(html, results)
-        else:
-            # look at the children
+        elif 'children' in html:
+            # look at the children, ignore: ('meta', 'img', 'hr', 'br')
             self._tpl__children(html, results)
 
         if self.debug:
@@ -492,7 +488,7 @@ class Template:
         return (name, arr)
 
     def _get_all_content(self, html):
-        'wp-recursive-text: 获取所有的文字内容'
+        'wp-recursive-text: get all the text'
         arr = []
         for x in html:
             if 'content' in x:
@@ -583,7 +579,7 @@ class Template:
                     html_i = _html_children_tag(self, tpl_child, html, html_i,
                             html_n, children_results, self.debug)
                 except MissingNodeError:
-                    # 忽略，html_tree节点不存在
+                    # Ignore, html_tree node does not exist
                     continue
             else:
                 raise ValueError('Unknown child type.')
@@ -627,8 +623,9 @@ class Template:
                         if s in html_attrs
                     ])
         else:
-            # 目前，只比较key，不比较value
-            # ret = self.attrs == html_attrs
+            ''' At present, only compare k, not v
+                (Format reordering leads to v inconsistencies)
+            '''
             ret = self.attrs.keys() == html_attrs.keys()
 
         if self.debug:

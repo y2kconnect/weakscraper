@@ -61,6 +61,11 @@ class TestWPAttrNameDict(unittest.TestCase):
             <html>
                 <body>
                     <a wp-attr-name-dict="{'href': 'url', 'class': 'class_name', 'howto': 'other'}" />
+                    <img width=100 heidht=168
+                        src='http://www.image.com/files/8813/5551/7470/cruise-ship.png'
+                        class='image'
+                        wp-attr-name-dict="{'src': 'picture', 'width': 'width', 'height': 'height', 'class': 'class_name_img'}"
+                        />
                 </body>
             </html>
             """
@@ -70,6 +75,10 @@ class TestWPAttrNameDict(unittest.TestCase):
             <html>
                 <body>
                     <a href='http://www.163.com' class='test_01' trage='_blank'>test</a>
+                    <img width=100 height=168
+                        src='http://www.image.com/files/8813/5551/7470/cruise-ship.png'
+                        class='image'
+                        >
                 </body>
             </html>
             """
@@ -80,6 +89,10 @@ class TestWPAttrNameDict(unittest.TestCase):
         info = {
             "url": "http://www.163.com",
             "class_name": "test_01",
+            "picture": "http://www.image.com/files/8813/5551/7470/cruise-ship.png",
+            "width": "100",
+            "height": "168",
+            "class_name_img": "image",
             }
 
         self.assertEqual(result_data, info)

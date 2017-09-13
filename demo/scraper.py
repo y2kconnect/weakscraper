@@ -7,9 +7,10 @@ import json
 from weakscraper import WeakScraper
 
 
+name_output = 'output.json'
+
 name_template = 'template.html'
 name_in = 'webpage.html'
-name_output = 'output.json'
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
         s_template = f_template.read()
         s_html = f_html.read()
 
-    scraper = WeakScraper(s_template)
+    scraper = WeakScraper(s_template, debug=False)
     result_data = scraper.scrap(s_html)
     msg = json.dumps(result_data)
 
