@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
 # python apps
-import pdb
 import pprint
 import re
 
 # our apps
-from weakscraper import exceptions
 from weakscraper.exceptions import (
-        AttrsError, CompareError, ExcessNodeError, MissingNodeError,
-        NonAtomicChildError, NodetypeError, TagError, TextError,
-        TextExpectedError,
+        CompareError, ExcessNodeError, MissingNodeError, NonAtomicChildError,
+        NodetypeError, TagError, TextExpectedError,
         )
 
 

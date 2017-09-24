@@ -7,10 +7,10 @@ from abc import ABCMeta
 # out apps
 from .exceptions import AssertCompleteFailure
 
-DEBUG = False
-
 
 class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
+    NotEndTag = ('meta', 'img', 'hr', 'br')
+
     def __init__(self, debug=False):
         super().__init__(convert_charrefs=True)
         self.genealogy = [[]]

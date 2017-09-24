@@ -46,7 +46,11 @@ class HtmlParser(BaseParser):
         if (parent['nodetype'] != 'tag'):
             raise NodeTypeDiscrepancy(self.genealogy, parent['nodetype'])
         elif (parent['name'] != tag):
-            raise EndTagDiscrepancy(self.genealogy, parent['name'])
+            if not (
+                    tag in self.NotEndTag
+                    and self.genealogy[-1][-1]['name'] == tag
+                    ):
+                raise EndTagDiscrepancy(self.genealogy, parent['name'])
         else:
             self.genealogy.pop()
 

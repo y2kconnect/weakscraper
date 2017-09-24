@@ -5,6 +5,8 @@ from weakscraper.base_parser import BaseParser
 from weakscraper.exceptions import EndTagError
 
 
+
+
 class TemplateParser(BaseParser):
     def __str__(self):
         return '<TemplateParser(genealogy={})>'.format(self.genealogy)
@@ -22,7 +24,7 @@ class TemplateParser(BaseParser):
                 'wp-attr-name-dict',
                 ]
 
-        if tag in ('meta', 'img', 'hr', 'br') and 'wp-leaf' not in attrs:
+        if tag in self.NotEndTag and 'wp-leaf' not in attrs:
             attrs.append(('wp-leaf', None))
 
         for k, v in attrs:
@@ -60,10 +62,14 @@ class TemplateParser(BaseParser):
     def handle_endtag(self, tag):
         parent = self.genealogy[-2][-1]
 
-        if (parent['nodetype'] != 'tag'):
+        if parent['nodetype'] != 'tag':
             raise EndTagError(self.genealogy, parent['nodetype'])
-        elif (parent['name'] != tag):
-            raise EndTagError(self.genealogy, parent['name'])
+        elif parent['name'] != tag:
+            if not (
+                    tag in self.NotEndTag
+                    and self.genealogy[-1][-1]['name'] == tag
+                    ):
+                raise EndTagError(self.genealogy, parent['name'])
         else:
             self.genealogy.pop()
 
