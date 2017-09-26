@@ -3,6 +3,7 @@
 # python apps
 import argparse
 import json
+import os
 from weakscraper.htmlparser import HtmlParser
 
 
@@ -21,12 +22,17 @@ def _get_args():
             help='output filename, default: None',
             )
     args = parser.parse_args()
+    name_in, encoding, name_out = (args.input, args.encoding, args.output)
 
-    if args.input is None:
+    if name_in is None:
         parser.print_help()
         exit()
 
-    return (args.input, args.encoding, args.output)
+    if not os.path.exists(name_in):
+        print('file does not exist. {}'.format(name_in))
+        exit()
+
+    return (name_in, encoding, name_out)
 
 
 def main():
