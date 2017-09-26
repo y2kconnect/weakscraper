@@ -34,6 +34,7 @@ pip install weakscraper
 A `weakscraper` template is like a regular HTML file with some keywords to tell which parts are to be kept.
 * `wp-name="name"` : This tag names an element in the output object. Optional if `wp-function` is set.
 * `wp-recursive` : This attribute signals that everything under this tag is to be kept.
+* `wp-recursive-text` : This attribute signals that everything text under this tag is to be kept.
 * `wp-list` : This attribute signals that this tag may be found zero, one or several time. This outputs a list.
 * `wp-function="f"` : This attribute enables to process the output of the tag with a callback.
 * `wp-optional` : This attribute signals that this tag can be found zero or one time.
@@ -43,6 +44,7 @@ A `weakscraper` template is like a regular HTML file with some keywords to tell 
 * `wp-ignore-content` : This attribute signals that the content of this tag should be ignored.
 * `wp-name-attrs="name"` : This attribute that the attribute of the tag should be outputed with the name `name`. Optional if `wp-function-attrs` is set.
 * `wp-function-attrs="f"` : This attribute enables to process the attributes dictionary with a callback.
+* `wp-attr-name-dict="{'attr name': 'key'}"` : The attribute indicates that the value of the attribute name of the tag is read.
 
 ## Example
 
