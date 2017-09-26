@@ -14,7 +14,7 @@ class HtmlParser(BaseParser):
         is_leaf = False
         is_decl = False
 
-        if tag in ('meta', 'img', 'hr', 'br') and 'wp-leaf' not in attrs:
+        if tag in self.NotEndTag and 'wp-leaf' not in attrs:
             attrs.append(('wp-leaf', None))
 
         for k, v in attrs:
@@ -24,9 +24,6 @@ class HtmlParser(BaseParser):
                 is_decl = True
             else:
                 attrs_dict[k] = v
-
-        if tag in ['meta', 'link', 'br', 'img', 'input']:
-            is_leaf = True
 
         brothers = self.genealogy[-1]
 
