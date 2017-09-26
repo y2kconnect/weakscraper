@@ -9,7 +9,7 @@ from .exceptions import AssertCompleteFailure
 
 
 class BaseParser(html.parser.HTMLParser, metaclass=ABCMeta):
-    NotEndTag = ('meta', 'img', 'hr', 'br')
+    NotEndTag = ('meta', 'img', 'hr', 'br', 'link', 'input')
 
     def __init__(self, debug=False):
         super().__init__(convert_charrefs=True)
