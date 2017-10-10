@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+# python apps
+import json
+
 # our apps
 from weakscraper.base_parser import BaseParser
 from weakscraper.exceptions import EndTagError
-
-
 
 
 class TemplateParser(BaseParser):
@@ -37,7 +38,7 @@ class TemplateParser(BaseParser):
                     params['wp-recursive-leaf'] = None
                     params[k] = v
                 elif k == 'wp-attr-name-dict':
-                    params[k] = eval(v)
+                    params[k] = json.loads(v)
                 else:
                     params[k] = v
             elif k in attrs_dict:

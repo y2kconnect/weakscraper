@@ -74,7 +74,7 @@ class TestWPListAttrNameDict(unittest.TestCase):
                 <body wp-name='body'>
                     <a
                         wp-name='link'
-                        wp-attr-name-dict="{'href': 'url', 'class': 'class_name', 'howto': 'other'}"
+                        wp-attr-name-dict='{"href": "url", "class": "class_name", "howto": "other"}'
                         wp-function='arr'
                         wp-list
                         />

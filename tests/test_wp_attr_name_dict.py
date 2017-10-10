@@ -12,7 +12,7 @@ class TestWPAttrNameDict(unittest.TestCase):
                 <body wp-name='body'>
                     <a
                         wp-name='link'
-                        wp-attr-name-dict="{'href': 'url', 'class': 'class_name', 'howto': 'other'}"
+                        wp-attr-name-dict='{"href": "url", "class": "class_name", "howto": "other"}'
                         />
                 </body>
             </html>
@@ -60,11 +60,11 @@ class TestWPAttrNameDict(unittest.TestCase):
             <!DOCTYPE html>
             <html>
                 <body>
-                    <a wp-attr-name-dict="{'href': 'url', 'class': 'class_name', 'howto': 'other'}" />
+                    <a wp-attr-name-dict='{"href": "url", "class": "class_name", "howto": "other"}' />
                     <img width=100 heidht=168
                         src='http://www.image.com/files/8813/5551/7470/cruise-ship.png'
                         class='image'
-                        wp-attr-name-dict="{'src': 'picture', 'width': 'width', 'height': 'height', 'class': 'class_name_img'}"
+                        wp-attr-name-dict='{"src": "picture", "width": "width", "height": "height", "class": "class_name_img"}'
                         />
                 </body>
             </html>
