@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+''' 使用模板解析html页面
+'''
 
 # python apps
 import argparse
@@ -28,23 +30,31 @@ def _get_args():
             '--output', type=str, help='output result info',
             )
     parser.add_argument(
-            '-d', '--debug', type=bool, help='output debug info',
+            '-d', '--debug', action='store_true', help='output debug info',
             )
+
     args = parser.parse_args()
-    arr = (
+    name_tpl, encoding_tpl, name_html, encoding_html, name_output, debug = (
             args.tpl, args.encoding_tpl, args.html, args.encoding_html,
             args.output, args.debug,
             )
 
-    name_tpl, encoding_tpl, name_html, encoding_html, name_output, debug = arr
+    arr = (
+            name_tpl, encoding_tpl, name_html, encoding_html, name_output,
+            debug,
+            )
+    s = 'name_tpl, encoding_tpl, name_html, encoding_html, name_output, ' \
+        'debug:\n\t{}\n'
+    print(s.format(arr))
+
     if name_tpl is None or name_html is None:
         parser.print_help()
         exit()
+
     for f_name in (name_tpl, name_html):
         if not os.path.exists(f_name):
             print('file does not exist. {}'.format(f_name))
             exit()
-
     return arr
 
 
