@@ -71,4 +71,8 @@ A weakscraper template is like a regular HTML file with some keywords to tell wh
             标签: wp-item
             文本: wp-name
 
-
+    wp-nugget:
+        The attribute indicates that a regular expression is used to get the corresponding value at the label position.
+        该属性表示，使用正则表达式，获取标签位置处的对应的值。
+        Gets the text that is nested in the string.
+        抓取嵌套于字符串中的文字。
