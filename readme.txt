@@ -20,7 +20,7 @@ A weakscraper template is like a regular HTML file with some keywords to tell wh
 
     wp-list：
         This attribute signals that this tag may be found zero, one or several time.
-        该属性表示该标签可能被发现为零次，一次或几次。
+        该属性表示该标签可能被发现[0..n]次。
         This outputs a list.
         这将输出一个列表。
 
@@ -30,7 +30,7 @@ A weakscraper template is like a regular HTML file with some keywords to tell wh
 
     wp-optional：
         This attribute signals that this tag can be found zero or one time.
-        该属性表示该标签可以被找到零或一次。
+        该属性表示该标签可以被找到[0, 1]次。
 
     wp-ignore：
         As a tag, signals that everything should be ignored until the parent end tag. 
@@ -64,8 +64,11 @@ A weakscraper template is like a regular HTML file with some keywords to tell wh
         The attribute indicates that the value of the attribute name of the tag is read.
         该属性表示，读取该标签的属性名对应的值。
         
-    wp-nugget:
-        The attribute indicates that a regular expression is used to get the corresponding value at the label position.
-        该属性表示，使用正则表达式，获取标签位置处的对应的值。
-        Gets the text that is nested in the string.
-        抓取嵌套于字符串中的文字。
+    wp-item = "name"：
+        该标签包含下级标签时，使用。
+        之前wp-name使用在标签包含下级标签，以及文本处。
+        现在，将其分开。下级是:
+            标签: wp-item
+            文本: wp-name
+
+

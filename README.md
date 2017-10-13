@@ -45,7 +45,6 @@ A `weakscraper` template is like a regular HTML file with some keywords to tell 
 * `wp-name-attrs="name"` : This attribute that the attribute of the tag should be outputed with the name `name`. Optional if `wp-function-attrs` is set.
 * `wp-function-attrs="f"` : This attribute enables to process the attributes dictionary with a callback.
 * `wp-attr-name-dict="{'attr name': 'key'}"` : The attribute indicates that the value of the attribute name of the tag is read.
-* `wp-nugget` : The attribute indicates that a regular expression is used to get the corresponding value at the label position. Gets the text that is nested in the string.
 
 ## Example
 
