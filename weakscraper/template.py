@@ -11,6 +11,9 @@ from weakscraper.exceptions import (
         )
 
 
+DEBUG_INIT = False
+
+
 def _html_children_skip(info, i, n, debug=False):
     if debug:
         print('''
@@ -147,6 +150,7 @@ def _check_flag(tpl_child, info, i, n, debug):
 
 
 def _check_text_flag(tpl_childrens, debug):
+    'text or wp-nugget'
     if debug:
         print('''
                 ----------------
@@ -186,6 +190,15 @@ class Template:
         return ret
 
     def __init__(self, raw_template, functions, debug=False):
+        if DEBUG_INIT:
+            print('''----------------
+                    Template.__init__(): ...
+                        self: {}
+                        functions: {}
+                        debug: {}
+                        raw_template: {}'''.format(self, functions, debug,
+                        raw_template))
+
         self.debug = debug
         self.functions = functions
 
@@ -198,6 +211,7 @@ class Template:
             raise ValueError(msg)
 
     def _process_grandchildren(self, arr):
+        'text or wp-nugget --> texts-and-nuggets'
         text_template = {
                 'nodetype': 'texts-and-nuggets',
                 'children': arr,
@@ -206,6 +220,12 @@ class Template:
         self.children.append(new_child)
 
     def _init_tag(self, raw_template):
+        if DEBUG_INIT:
+            print('''----------------
+                    Template._init_tag(): ...
+                        self: {}
+                        raw_template: {}'''.format(self, raw_template))
+
         tag = raw_template['name']
         assert(tag != 'wp-nugget')
 
@@ -249,6 +269,7 @@ class Template:
         grandchildren = []
         for i, child in enumerate(raw_template['children']):
             if text_flags[i]:
+                'text or wp-nugget'
                 grandchildren.append(child)
             else:
                 if grandchildren:
@@ -261,6 +282,12 @@ class Template:
             grandchildren = []
 
     def _init_texts_and_nuggets(self, raw_template):
+        if DEBUG_INIT:
+            print('''----------------
+                    Template._init_texts_and_nuggets(): ...
+                        self: {}
+                        raw_template: {}'''.format(self, raw_template))
+
         if len(raw_template['children']) == 1:
             child = raw_template['children'][0]
             if child['nodetype'] == 'text':
@@ -280,6 +307,8 @@ class Template:
         self.regex = ''
         self.names = []
         self.functions = []
+        if DEBUG_INIT:
+            print('\n\tself.regex: "{}"'.format(self.regex))
 
         expected_type = raw_template['children'][0]['nodetype']
         for child in raw_template['children']:
@@ -303,6 +332,8 @@ class Template:
 
             else:
                 raise ValueError('Unexpected nodetype.')
+            if DEBUG_INIT:
+                print('\tself.regex: "{}"'.format(self.regex))
 
     def _f(self, obj):
         'self.nodetype == "tag"'
