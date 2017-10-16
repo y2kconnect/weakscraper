@@ -10,7 +10,7 @@ import sys
 
 # our apps
 from weakscraper.template import Template
-from weakscraper.templateparser import TemplateParser
+from weakscraper.templateparser import template_parser
 
 
 class WeakScraper:
@@ -24,8 +24,7 @@ class WeakScraper:
         tree_tpl = bs4.BeautifulSoup(stream, 'lxml')
 
         # 处理标签的"wp-*"属性
-        parser_tpl = TemplateParser()
-        tree_tpl = parser_tpl.process(tree_tpl)
+        template_parser(tree_tpl, debug)
 
         self.tree_tpl = tree_tpl
         # self.template = Template(tree_tpl, functions, debug)
