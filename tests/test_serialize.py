@@ -3,7 +3,6 @@
 '''
 
 # python apps
-import bs4
 import unittest
 import weakscraper
 
@@ -23,104 +22,100 @@ class TestSerialize(unittest.TestCase):
                 </body>
             </html>
             '''
-        self.tree_tpl = bs4.BeautifulSoup(html_tpl, 'lxml')
         self.info = {
-            "type": "BeautifulSoup",
+            "nodetype": "BeautifulSoup",
             "name": "[document]",
             "children": [
                 {
-                    "type": "Doctype",
+                    "nodetype": "Doctype",
                     "content": "html"
                     },
                 {
-                    "type": "Tag",
+                    "nodetype": "Tag",
                     "name": "html",
                     "children": [
                         {
-                            "type": "NavigableString",
+                            "nodetype": "NavigableString",
                             "content": "\n"
                             },
                         {
-                            "type": "Tag",
+                            "nodetype": "Tag",
                             "name": "head",
                             "children": [
                                 {
-                                    "type": "NavigableString",
+                                    "nodetype": "NavigableString",
                                     "content": "\n"
                                     },
                                 {
-                                    "type": "Tag",
+                                    "nodetype": "Tag",
                                     "name": "title",
-                                    "children": [
-                                        {
-                                            "type": "NavigableString",
-                                            "content": "Title"
-                                            }
-                                        ]
+                                    "children": [{
+                                        "nodetype": "NavigableString",
+                                        "content": "Title"
+                                        }]
                                     },
                                 {
-                                    "type": "NavigableString",
+                                    "nodetype": "NavigableString",
                                     "content": "\n"
                                     }
                                 ]
                             },
                         {
-                            "type": "NavigableString",
+                            "nodetype": "NavigableString",
                             "content": "\n"
                             },
                         {
-                            "type": "Tag",
+                            "nodetype": "Tag",
                             "name": "body",
-                            "attrs": {
-                                "attr1": "val1",
-                                "wp-name": "body"
-                                },
+                            "attrs": {"attr1": "val1"},
+                            "params": {"wp-name": "body"},
                             "children": [
                                 {
-                                    "type": "NavigableString",
+                                    "nodetype": "NavigableString",
                                     "content": "\n"
                                     },
                                 {
-                                    "type": "Tag",
+                                    "nodetype": "Tag",
                                     "name": "div",
                                     "children": [
                                         {
-                                            "type": "NavigableString",
+                                            "nodetype": "NavigableString",
                                             "content": "\n                        Hi ! My name is "
                                             },
                                         {
-                                            "type": "Tag",
+                                            "nodetype": "Tag",
                                             "name": "wp-nugget",
-                                            "attrs": {"wp-name": "name"},
+                                            "params": {"wp-name": "name"},
                                             "children": []
                                             },
                                         {
-                                            "type": "NavigableString",
+                                            "nodetype": "NavigableString",
                                             "content": ".\n                    "
                                             }
                                         ]
                                     },
                                 {
-                                    "type": "NavigableString",
+                                    "nodetype": "NavigableString",
                                     "content": "\n"
                                     }
                                 ]
                             },
                         {
-                            "type": "NavigableString",
+                            "nodetype": "NavigableString",
                             "content": "\n"
                             }
                         ]
                     },
                 {
-                    "type": "NavigableString",
+                    "nodetype": "NavigableString",
                     "content": "\n"
                     }
                 ]
             }
+        self.obj = weakscraper.WeakScraper(html_tpl)
 
     def test_serialize(self):
-        info = weakscraper.weakscraper.serialize(self.tree_tpl)
+        info = weakscraper.weakscraper.serialize(self.obj.tree_tpl)
         self.assertEqual(info, self.info)
 
 
