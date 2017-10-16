@@ -24,13 +24,11 @@ class WeakScraper:
         tree_tpl = bs4.BeautifulSoup(stream, 'lxml')
 
         # 处理标签的"wp-*"属性
-        tpl_parser = TemplateParser()
-        tree_tpl = tpl_parser.process(tree_tpl)
+        parser_tpl = TemplateParser()
+        tree_tpl = parser_tpl.process(tree_tpl)
 
-        if self.debug:
-            show_DOM(tree_tpl, 'tree_tpl')
-
-        self.template = Template(tree_tpl, functions, debug)
+        self.tree_tpl = tree_tpl
+        # self.template = Template(tree_tpl, functions, debug)
 
     def scrap(self, stream):
         tree_html = bs4.BeautifulSoup(stream, 'lxml')
@@ -42,7 +40,20 @@ class WeakScraper:
         return results
 
 
-def serialize(root):
+def node_to_json(node, arr_key):
+    '节点转JSON'
+    info = {'nodetype': node.__class__.__name__}
+    if isinstance(node, bs4.NavigableString):
+        info['content'] = str(node.string)
+    else:
+        for s in arr_key:
+            x = getattr(node, s, None)
+            if x:
+                info[s] = x
+    return info
+
+
+def serialize(root, arr_key=('name', 'attrs', 'params', 'children')):
     '序列化DOM树, 深度遍历'
     arr_tree = []
     arr_node = collections.deque()
@@ -50,20 +61,15 @@ def serialize(root):
 
     while arr_node:
         node, arr_ret = arr_node.popleft()
-        info = {'type': node.__class__.__name__}
-        if isinstance(node, bs4.NavigableString):
-            info['content'] = str(node.string)
-        else:
-            for s in ('name', 'attrs', 'children'):
-                x = getattr(node, s, None)
-                if x:
-                    if s == 'children':
-                        arr_children = []
-                        info[s] = arr_children
-                        arr = [(node, arr_children) for node in node.children]
-                        arr_node.extendleft(reversed(arr))
-                    else:
-                        info[s] = x
+        info = node_to_json(node, arr_key)
+
+        k = 'children'
+        if k in arr_key and k in info and info[k]:
+            arr_children = []
+            arr = [(node, arr_children) for node in info[k]]
+            arr_node.extendleft(reversed(arr))
+            info[k] = arr_children
+
         arr_ret.append(info)
 
     n = len(arr_tree)

@@ -5,7 +5,7 @@ import pprint
 import re
 
 # our apps
-from weakscraper.exceptions import (
+from .exceptions import (
         CompareError, ExcessNodeError, MissingNodeError, NonAtomicChildError,
         NodetypeError, TagError, TextExpectedError,
         )
@@ -173,41 +173,43 @@ def _check_text_flag(tpl_childrens, debug):
 
 
 class Template:
+    def to_json(self):
+        '只显示本节点的children属性'
+        from .weakscraper import node_to_json
+
+        arr_key = ('name', 'names', 'attrs', 'functions', 'params', 'regex')
+        info = node_to_json(self, arr_key)
+
+        arr = getattr(self, 'children', None)
+        if arr:
+            info['children'] = [item.node_to_json() for item in arr]
+        return info
+
     def __repr__(self):
-        keys = (
-                'nodetype', 'name', 'names', 'attrs', 'children',
-                'functions', 'params', 'regex',
-                )
-        arr = []
-        for key in keys:
-            if hasattr(self, key):
-                value = getattr(self, key)
-                if isinstance(value, str):
-                    value = '"{}"'.format(value)
-                s = '{}={}'.format(key, value)
-                arr.append(s)
-        ret = '<Template({})>'.format(', '.join(arr))
+        info = self.to_json()
+        msg = json.dumps(info, ensure_ascii=False)
+        ret = '<Template({})>'.format(msg)
         return ret
 
-    def __init__(self, raw_template, functions, debug=False):
+    def __init__(self, tree_tpl, functions, debug=False):
         if DEBUG_INIT:
             print('''----------------
                     Template.__init__(): ...
                         self: {}
                         functions: {}
                         debug: {}
-                        raw_template: {}'''.format(self, functions, debug,
-                        raw_template))
+                        tree_tpl: {}'''.format(self, functions, debug,
+                        tree_tpl))
 
         self.debug = debug
         self.functions = functions
 
-        if raw_template['nodetype'] == 'tag':
-            self._init_tag(raw_template)
-        elif raw_template['nodetype'] == 'texts-and-nuggets':
-            self._init_texts_and_nuggets(raw_template)
+        if tree_tpl['nodetype'] == 'tag':
+            self._init_tag(tree_tpl)
+        elif tree_tpl['nodetype'] == 'texts-and-nuggets':
+            self._init_texts_and_nuggets(tree_tpl)
         else:
-            msg = 'Unknown nodetype {}.'.format(raw_template['nodetype'])
+            msg = 'Unknown nodetype {}.'.format(tree_tpl['nodetype'])
             raise ValueError(msg)
 
     def _process_grandchildren(self, arr):

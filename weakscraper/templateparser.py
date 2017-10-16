@@ -1,35 +1,57 @@
 # -*- coding: utf-8 -*-
 
 # python apps
+import collections
 import json
 
-# our apps
-from weakscraper.base_parser import BaseParser
-from weakscraper.exceptions import EndTagError
+
+DEBUG = False
+PossibleParams = (
+        'wp-attr-name-dict',
+        'wp-decl',
+        'wp-function',
+        'wp-function-attrs',
+        'wp-ignore',
+        'wp-ignore-attrs',
+        'wp-ignore-content',
+        'wp-item',
+        'wp-leaf',
+        'wp-list',
+        'wp-name',
+        'wp-name-attrs',
+        'wp-optional',
+        'wp-recursive',
+        'wp-recursive-text',
+        'wp-until',
+        )
 
 
-class TemplateParser(BaseParser):
-    def __str__(self):
-        return '<TemplateParser(genealogy={})>'.format(self.genealogy)
+class TemplateParser:
+    def process(self, root):
+        '深度遍历, 处理标签属性wp-*'
+        arr_node = collections.deque()
+        arr_node.append(root)
 
-    def handle_starttag(self, tag, attrs):
-        attrs_dict = {}
-        params = {}
-        possible_params = [
-                'wp-decl', 'wp-leaf',
-                'wp-name', 'wp-recursive', 'wp-recursive-text', 'wp-function',
-                'wp-list',
-                'wp-optional', 'wp-until',
-                'wp-ignore', 'wp-ignore-attrs', 'wp-ignore-content',
-                'wp-name-attrs', 'wp-function-attrs',
-                'wp-attr-name-dict',
-                ]
+        while arr_node:
+            node = arr_node.popleft()
 
-        if tag in self.NotEndTag and 'wp-leaf' not in attrs:
-            attrs.append(('wp-leaf', None))
+            x = getattr(node, 'children', None)
+            if x:
+                arr_node.extendleft(reversed(list(x)))
 
-        for k, v in attrs:
-            if k in possible_params:
+            arr_wp = None
+            x = getattr(node, 'attrs', None)
+            if x:
+                arr_wp = [k for k in x.keys() if k in PossibleParams]
+                if DEBUG:
+                    print('node: {}\n\tattrs: {}\n\tarr_wp: {}'.format(node,
+                            node.attrs, arr_wp))
+            if not arr_wp:
+                continue
+
+            params = {}
+            for k in arr_wp:
+                v = node.attrs.pop(k)
                 if k == 'wp-ignore':
                     params['wp-ignore-content'] = None
                     params['wp-ignore-attrs'] = None
@@ -41,36 +63,10 @@ class TemplateParser(BaseParser):
                     params[k] = json.loads(v)
                 else:
                     params[k] = v
-            elif k in attrs_dict:
-                raise ValueError('Attribute defined multiple times in tag.')
-            else:
-                attrs_dict[k] = v
+            node.params = params
 
-        brothers = self.genealogy[-1]
-
-        node = {
-                'nodetype': 'tag',
-                'name': tag,
-                'attrs': attrs_dict,
-                'params': params,
-                'children': [],
-                }
-        brothers.append(node)
-
-        if not any((s in node['params'] for s in ('wp-leaf', 'wp-decl'))):
-            self.genealogy.append(node['children'])
-
-    def handle_endtag(self, tag):
-        parent = self.genealogy[-2][-1]
-
-        if parent['nodetype'] != 'tag':
-            raise EndTagError(self.genealogy, parent['nodetype'])
-        elif parent['name'] != tag:
-            if not (
-                    tag in self.NotEndTag
-                    and self.genealogy[-1][-1]['name'] == tag
-                    ):
-                raise EndTagError(self.genealogy, parent['name'])
-        else:
-            self.genealogy.pop()
+            if DEBUG:
+                print('\tattrs: {}\n\tparams: {}'.format(node.attrs,
+                        node.params))
+        return root
 
