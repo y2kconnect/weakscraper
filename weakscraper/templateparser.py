@@ -6,14 +6,17 @@ import json
 
 
 PossibleParams = (
+        # 标签名
+        'wp-ignore',
+        'wp-nugget',
+
+        # 标签参数
         'wp-attr-name-dict',
         'wp-decl',
         'wp-function',
         'wp-function-attrs',
-        'wp-ignore',
         'wp-ignore-attrs',
         'wp-ignore-content',
-        'wp-item',
         'wp-leaf',
         'wp-list',
         'wp-name',
@@ -26,7 +29,9 @@ PossibleParams = (
 
 
 def template_parser(root, debug):
-    '深度遍历, 处理标签属性wp-*'
+    ''' 深度遍历, 处理标签属性wp-*
+        node.wp_info，dict类型。记录模板节点的标记信息。
+    '''
     arr_node = collections.deque()
     arr_node.append(root)
 
@@ -61,7 +66,9 @@ def template_parser(root, debug):
                 params[k] = json.loads(v)
             else:
                 params[k] = v
-        node.params = params
+        if params:
+            node.wp_info = {'params': params}
 
         if debug:
-            print('\tattrs: {}\n\tparams: {}'.format(node.attrs, node.params))
+            print('\tattrs: {}\n\twp_info: {}'.format(node.attrs,
+                    node.wp_info if hasattr(node, 'wp_info') else None))

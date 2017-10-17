@@ -13,6 +13,7 @@ def node_to_json(node, arr_key):
     '节点转JSON'
     info = {'nodetype': node.__class__.__name__}
     if isinstance(node, bs4.NavigableString):
+        # 文本标签的内容
         info['content'] = str(node.string)
     else:
         for s in arr_key:
@@ -22,7 +23,7 @@ def node_to_json(node, arr_key):
     return info
 
 
-def serialize(root, arr_key=('name', 'attrs', 'params', 'children')):
+def serialize(root, arr_key=('name', 'attrs', 'wp_info', 'children')):
     '序列化DOM树, 深度遍历'
     arr_tree = []
     arr_node = collections.deque()
@@ -32,6 +33,7 @@ def serialize(root, arr_key=('name', 'attrs', 'params', 'children')):
         node, arr_ret = arr_node.popleft()
         info = node_to_json(node, arr_key)
 
+        # 若arr_key中包含'children'，则删除子节点的'children'属性
         k = 'children'
         if k in arr_key and k in info and info[k]:
             arr_children = []
