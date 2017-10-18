@@ -4,13 +4,14 @@
 
 # python apps
 import bs4
-import collections
 import json
 import sys
 
 
-def node_to_json(node, arr_key):
+def node_to_json(node, arr_key=None):
     '节点转JSON'
+    if arr_key is None:
+        arr_key = ('name', 'attrs', 'wp_info')
     info = {'nodetype': node.__class__.__name__}
     if isinstance(node, bs4.NavigableString):
         # 文本标签的内容
@@ -23,23 +24,23 @@ def node_to_json(node, arr_key):
     return info
 
 
-def serialize(root, arr_key=('name', 'attrs', 'wp_info', 'children')):
+def serialize(root, arr_key=None):
     '序列化DOM树, 深度遍历'
     arr_tree = []
-    arr_node = collections.deque()
+    arr_node = []
     arr_node.append((root, arr_tree))
 
     while arr_node:
-        node, arr_ret = arr_node.popleft()
+        node, arr_ret = arr_node.pop()
         info = node_to_json(node, arr_key)
 
-        # 若arr_key中包含'children'，则删除子节点的'children'属性
-        k = 'children'
-        if k in arr_key and k in info and info[k]:
-            arr_children = []
-            arr = [(node, arr_children) for node in info[k]]
-            arr_node.extendleft(reversed(arr))
-            info[k] = arr_children
+        # 孩子节点
+        if getattr(node, 'contents', None):
+            # 删除子节点的'children'属性
+            info['children'] = arr_children = []
+            # 下级节点，加入堆栈
+            arr = [(node, arr_children) for node in node.contents]
+            arr_node.extend(reversed(arr))
 
         arr_ret.append(info)
 
