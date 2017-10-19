@@ -1,9 +1,10 @@
 # -*- encoding: utf-8 -*-
 
 # our apps
-from weakscraper.template import Template
-from weakscraper.htmlparser import HtmlParser
-from weakscraper.templateparser import TemplateParser
+from .template import Template
+from .htmlparser import HtmlParser
+from .templateparser import TemplateParser
+from .utils import show_DOM, serialize
 
 
 class WeakScraper:
@@ -15,6 +16,7 @@ class WeakScraper:
         self.info = {'tpl_tree': tpl_tree}
 
         self.template = Template(tpl_tree, functions, debug)
+        self.info['Template_tree'] = serialize(self.template)
 
     def scrap(self, html):
         html_parser = HtmlParser()

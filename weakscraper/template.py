@@ -176,7 +176,7 @@ class Template:
     def __repr__(self):
         keys = (
                 'nodetype', 'name', 'names', 'attrs', 'children',
-                'functions', 'params', 'regex',
+                'functions', 'params', 'regex', 'debug',
                 )
         arr = []
         for key in keys:
@@ -212,6 +212,12 @@ class Template:
 
     def _process_grandchildren(self, arr):
         'text or wp-nugget --> texts-and-nuggets'
+        if DEBUG_INIT:
+            print('''----------------
+                    Template._process_grandchildren(): ...
+                        self: {}
+                        arr: {}'''.format(self, arr))
+
         text_template = {
                 'nodetype': 'texts-and-nuggets',
                 'children': arr,
@@ -277,6 +283,7 @@ class Template:
                     grandchildren = []
                 new_child = Template(child, self.functions, self.debug)
                 self.children.append(new_child)
+
         if grandchildren:
             self._process_grandchildren(grandchildren)
             grandchildren = []
