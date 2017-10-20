@@ -11,7 +11,10 @@ import sys
 def node_to_json(node, arr_key=None):
     '节点转JSON'
     if arr_key is None:
-        arr_key = ('name', 'attrs', 'wp_info')
+        arr_key = (
+                'name', 'names', 'attrs', 'children', 'functions', 'params',
+                'regex', 'debug', 'wp_info', 'node_tpl',
+                )
     info = {'nodetype': node.__class__.__name__}
     if isinstance(node, bs4.NavigableString):
         # 文本标签的内容
