@@ -36,16 +36,21 @@ class WeakScraper:
 
         if self.debug:
             import json
-            s = '\n{sep}\ntree_html:\n{tree_html}\n{sep}\ntree_tpl:\n' \
-                    '{tree_tpl}\n{sep}\ntree_Template:\n{tree_Template}'
             info = dict(ensure_ascii=False, indent=4)
             sep = '\n' + '-' * 40
-            print(s.format(
-                    sep=sep,
-                    tree_html=json.dumps(self.info['tree_html'], **info),
-                    tree_tpl=json.dumps(self.info['tree_tpl'], **info),
-                    tree_Template=json.dumps(self.info['tree_Template'], **info),
-                    ))
+            s_tree_tpl = json.dumps(self.info['tree_tpl'], **info)
+            s_tree_html = json.dumps(self.info['tree_html'], **info)
+            s_tree_Template = json.dumps(self.info['tree_Template'], **info)
+
+            s = '\n{sep}\ntree_tpl:\n{tree_tpl}\n{sep}\ntree_html:\n' \
+                    '{tree_html}\n{sep}\ntree_Template:\n{tree_Template}' \
+                    .format(
+                            sep=sep,
+                            tree_tpl=s_tree_tpl,
+                            tree_html=s_tree_html,
+                            tree_Template=s_tree_Template,
+                            )
+            print(s)
 
         # results = self.template.compare(tree_html)
         results = {}

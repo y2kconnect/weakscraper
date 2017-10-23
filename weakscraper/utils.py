@@ -11,10 +11,7 @@ import sys
 def node_to_json(node, arr_key=None):
     '节点转JSON'
     if arr_key is None:
-        arr_key = (
-                'name', 'names', 'attrs', 'children', 'functions', 'params',
-                'regex', 'debug', 'wp_info', 'node_tpl',
-                )
+        arr_key = ('name', 'attrs', 'contents', 'wp_info')
     info = {'nodetype': node.__class__.__name__}
     if isinstance(node, bs4.NavigableString):
         # 文本标签的内容
@@ -32,6 +29,7 @@ def serialize(root, arr_key=None):
     arr_tree = []
     arr_node = []
     arr_node.append((root, arr_tree))
+    arr_key = ('name', 'attrs', 'wp_info')
 
     while arr_node:
         node, arr_ret = arr_node.pop()
@@ -40,7 +38,7 @@ def serialize(root, arr_key=None):
         # 孩子节点
         if getattr(node, 'contents', None):
             # 删除子节点的'children'属性
-            info['children'] = arr_children = []
+            info['contents'] = arr_children = []
             # 下级节点，加入堆栈
             arr = [(node, arr_children) for node in node.contents]
             arr_node.extend(reversed(arr))

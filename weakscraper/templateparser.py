@@ -63,9 +63,11 @@ def template_parser(root, debug=False):
         for k in arr_wp:
             v = node.attrs.pop(k)
             if k == 'wp-ignore':
+                params[k] = None
                 params['wp-ignore-content'] = None
                 params['wp-ignore-attrs'] = None
             elif k in ('wp-recursive', 'wp-recursive-text'):
+                params[k] = None
                 params['wp-leaf'] = None
                 params['wp-recursive-leaf'] = None
                 params[k] = v

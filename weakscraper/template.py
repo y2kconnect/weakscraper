@@ -26,72 +26,94 @@ from .exceptions import NodetypeError
 SEP = '-' * 16
 
 
-def init_tpl(root, functions=None, debug=False):
+def init_tpl(root_tpl, functions=None, debug=False):
     '遍历模板DOM树'
     if debug:
-        s = '\n{}\ninit_tpl(): ...\n\troot: {}\n\tfunctions: {}\n\tdebug: {}'
-        print(s.format(SEP, utils.serialize(root), functions, debug))
+        s = '\n{SEP}\ninit_tpl(): ...\n\troot_tpl: {root_tpl}\n\t' \
+                'functions: {functions}\n\tdebug: {debug}'.format(
+                SEP=SEP, root_tpl=utils.serialize(root_tpl),
+                functions=functions, debug=debug,
+                )
+        print(s)
 
     info_default = {
             'functions': functions,
             'debug': debug,
             }
-    if 'name' in root and root.name == 'texts-and-nuggets':
-        # 处理 texts-and-nuggets
-        _init_texts_and_nuggets(root, **info_default)
-    else:
-        _init_tag(root, **info_default)
+    arr_node = []
+    arr_node.append(root_tpl)
+
+    while arr_node:
+        node = arr_node.pop()
+
+        if debug:
+            print('node: {}\n\tnode.name: {}'.format(node,
+                    None if hasattr(node, 'name') else node.name))
+
+        if hasattr(node, 'name') and node.name == 'texts-and-nuggets':
+            # 处理 texts-and-nuggets
+            _init_texts_and_nuggets(node, info_default)
+        else:
+            _init_tag(node, info_default)
+
+        if hasattr(node, 'contents'):
+            # 下级节点
+            arr_node.extend(reversed(node.contents))
+        if debug:
+            print('node: {}'.format(utils.node_to_json(node)))
 
 
-def _init_tag(node, functions, debug):
-    pass
-    if debug:
-        s = '\n{}\n_init_tag(): ...\n\troot: {}\n\tfunctions: {}\n\tdebug: {}'
-        print(s.format(SEP, utils.node_to_json(node), functions, debug))
+def _init_tag(node, info_default):
+    if info_default['debug']:
+        s = '\n{SEP}\n_init_tag(): ...\n\tnode: {node}\n\tinfo_default: ' \
+                '{info_default}'.format(
+                SEP=SEP, node=utils.node_to_json(node),
+                info_default=info_default,
+                )
+        print(s)
 
-    if 'name' not in node:
+    if isinstance(node, bs4.NavigableString):
         return
 
     tag = node.name
-    assert tag != 'wp-nugget'
 
     if tag == 'wp-ignore':
         return
 
-    assert 'wp_info' in node and 'params' in node['wp_info']
-    params = node.wp_info['params']
+    if 'wp_info' in node and 'params' in node['wp_info']:
+        params = node.wp_info['params']
 
-    i, j = ('wp-function', 'wp-name')
-    if i in params and j not in params:
-        params[j] = params[i]
+        i, j = ('wp-function', 'wp-name')
+        if i in params and j not in params:
+            params[j] = params[i]
 
-    i, j = ('wp-function-attrs', 'wp-name-attrs')
-    if i in params and j not in params:
-        params[j] = params[i]
+        i, j = ('wp-function-attrs', 'wp-name-attrs')
+        if i in params and j not in params:
+            params[j] = params[i]
 
-    i, j = ('wp-name-attrs', 'wp-ignore-attrs')
-    if i in params:
-        params[j] = None
+        i, j = ('wp-name-attrs', 'wp-ignore-attrs')
+        if i in params:
+            params[j] = None
 
-    i, j = ('wp-ignore-content', 'wp-leaf')
-    if i in params:
-        del params[j]
+        i, j = ('wp-ignore-content', 'wp-leaf')
+        if i in params:
+            del params[j]
 
-        new_node = bs.Tag(name='wp-ignore', parent=node)
-        new_node.wp_info = {
-                'params': {},
-                'functions': functions,
-                'debug': debug,
-                }
-        node.contents = [new_node]
-        return
+            new_node = bs.Tag(name='wp-ignore', parent=node)
+            new_node.wp_info = {
+                    'params': {},
+                    'functions': functions,
+                    'debug': debug,
+                    }
+            node.contents = [new_node]
+            return
 
-    if 'wp-leaf' in params:
-        assert len(node.contents) == 0
-        return
+        if 'wp-leaf' in params:
+            assert len(node.contents) == 0
+            return
 
     # check node.children: text or wp-nugget
-    text_flags = _check_text_flag(node)
+    text_flags = _check_text_flag(node, info_default)
 
     arr_children = []
     grandchildren = []
@@ -101,131 +123,39 @@ def _init_tag(node, functions, debug):
             # text or wp-nugget
             grandchildren.append(child)
         else:
+            # other
             if grandchildren:
-                new_node = _process_grandchildren(grandchildren)
-                arr_children.append(new_node)
-                grandchildren = []
+                _process_grandchildren(arr_children, grandchildren,
+                        info_default)
             arr_children.append(child)
-
     if grandchildren:
-        new_node = _process_grandchildren(grandchildren)
-        arr_children.append(new_node)
-        grandchildren = []
+        _process_grandchildren(arr_children, grandchildren, info_default)
 
     if arr_children:
-        pass
         node.contents = arr_children
+        for child in node.contents:
+            child.parent = node
 
 
-def _check_text_flag(node):
+def _check_text_flag(node, info_default):
     'check node.children: text or wp-nugget'
-    if node.wp_info['debug']:
-        s = '\n{}\n_check_text_flag(): ...\n\tnode: {}'
-        print(s.format(SEP, utils.node_to_json(node)))
+    if info_default['debug']:
+        s = '\n{SEP}\n_check_text_flag(): ...\n\tnode: {node}'.format(
+                SEP=SEP, node=utils.node_to_json(node),
+                )
+        print(s)
 
     arr = [
             True if (
                     isinstance(child, bs4.NavigableString)
                     or child.name == 'wp-nugget'
                     ) else False
-            for child in node.contents:
+            for child in node.contents
             ]
 
-    if debug:
+    if info_default['debug']:
         print('\n\tarr: {}'.format(arr))
     return arr
-
-
-
-def init_tpl_2(root, functions=None, debug=False):
-    '遍历模板DOM树'
-    if debug:
-        s = '\n{}\ninit_tpl(): ...\n\troot: {}\n\tfunctions: {}\n\tdebug: {}'
-        print(s.format(SEP, utils.serialize(root), functions, debug))
-
-    pdb.set_trace()
-
-    info_default = {
-            'functions': functions,
-            'debug': debug,
-            }
-    arr_node = collections.deque()
-    arr_node.append(root)
-    while arr_node:
-        node = arr_node.popleft()
-        if hasattr(node, 'wp_info') and node.wp_info:
-            node.wp_info.update({
-                    'functions': functions,
-                    'debug': debug,
-                    })
-            if node.name == 'texts-and-nuggets':
-                _init_texts_and_nuggets(node, info_default)
-            else:
-                _init_tag(node, info_default, arr_node)
-
-        if _boolean_children_nugget(node):
-            # 下级节点中，有<wp-nugget>节点
-            _init_children_nugget(node, info_default)
-
-        if hasattr(node, 'contents'):
-            # 下级节点
-            arr_node.extendleft(reversed(node.contents))
-
-
-def _init_tag_2(node, info_default, arr_node):
-    if node.wp_info['debug']:
-        s = '\n{}\n_init_tag(): ...\n\tnode: {}'
-        print(s.format(SEP, utils.node_to_json(node)))
-
-    if node.wp_info is None or 'wp-ignore' in node.wp_info['params']:
-        return
-
-    params = node.wp_info['params']
-
-    if 'wp-function' in params and 'wp-name' not in params:
-        params['wp-name'] = params['wp-function']
-
-    if 'wp-function-attrs' in params and 'wp-name-attrs' not in params:
-        params['wp-name-attrs'] = params['wp-function-attrs']
-
-    if 'wp-name-attrs' in params:
-        params['wp-ignore-attrs'] = None
-
-    if 'wp-ignore-content' in params:
-        if 'wp-leaf' in params:
-            params.pop('wp-leaf')
-
-        ignore = bs4.Tag(name='wp-ignore')
-        ignore.wp_info = {'params': {'wp-ignore': None}}
-        ignore.wp_info.update(info_default)
-        node.clear()
-        node.append(ignore)
-        return
-
-    if 'wp-leaf' in params or not hasattr(node, 'children'):
-        return
-
-    text_flags = tuple((
-            _boolean_text_or_nugget(child)
-            for child in node.children
-            ))
-
-    grandchildren, node.contents, arr = [], [], node.contents
-    for i, child in enumerate(arr):
-        child.parent = None
-        if hasattr(child, 'wp_info'):
-            child.wp_info.update(info_default)
-        if text_flags[i]:
-            # NavigableString or wp-nugget
-            grandchildren.append(child)
-        else:
-            if grandchildren:
-                new_node = _process_grandchildren(node, grandchildren)
-                arr.node.appendleft(new_node)
-                grandchildren = []
-            node.append(child)
-    if grandchildren:
-        _process_grandchildren(node, grandchildren)
 
 
 def _boolean_text_or_nugget(node):
@@ -235,38 +165,64 @@ def _boolean_text_or_nugget(node):
     return flag
 
 
-def _process_grandchildren(node, arr):
+def _process_grandchildren(arr_children, grandchildren, info_default):
     'NavigableString or wp-nugget --> texts-and-nuggets'
-    if node.wp_info['debug']:
-        s = '\n{}\n_process_grandchildren(): ...\n\tnode: {}\n\tarr: {}'
-        print(s.format(SEP, utils.serialize(node), arr))
+    if info_default['debug']:
+        s = '\n{SEP}\n_process_grandchildren(): ...\n\tarr_children: ' \
+                '{arr_children}\n\tgrandchildren: {grandchildren}\n\t' \
+                'info_default: {info_default}'.format(
+                SEP=SEP, arr_children=arr_children,
+                grandchildren=grandchildren, info_default=info_default,
+                )
+        print(s)
 
     new_node = bs4.Tag(name='texts-and-nuggets')
-    new_node.contents = arr
-    node.append(new_node)
-    for child in arr:
+    new_node.wp_info = {'params': {}}
+    new_node.contents = grandchildren[:]
+    for child in new_node.contents:
         child.parent = new_node
+
+    arr_children.append(new_node)
+    grandchildren.clear()
+
     return new_node
 
 
 def _init_texts_and_nuggets(node, info_default):
     'init texts-and-nuggets'
     if info_default['debug']:
-        s = '\n{}\n_init_texts_and_nuggets(): ...\nnode: {}'
-        print(s.format(SEP, utils.serialize(node)))
+        s = '\n{SEP}\n_init_texts_and_nuggets(): ...\n\tnode: {node}\n\t' \
+                'info_default: {info_default}'.format(
+                SEP=SEP, node=utils.serialize(node), info_default=info_default,
+                )
+        print(s)
 
-    if len(node.children) == 1:
+    if len(node.contents) == 1:
+        # 单个子节点
         child = node.contents[0]
         if isinstance(child, bs4.NavigableString):
-            self.content = child['content']
+            # 纯文本，用child替换node节点
+            root = node.parent
+            i = root.contents.index(node)
+            root.contents[i] = child
+            child.parent = root
+
+        elif isinstance(child, bs4.Tag):
+            # 文本嵌套
+            assert child.name == 'wp-nugget'
+
+            node.name = 'nugget'
+            node.wp_info['params'] = child.wp_info['params']
+
         else:
-            assert(child.name == 'wp-nugget')
+            # 其它
+            raise NodetypeError('Unexpected nodetype.')
         return
 
     node.wp_info = {
             'regex': '',
             'names': [],
-            'fuctions': [],
+            'functions': [],
             'debug': info_default['debug'],
             }
 
@@ -279,18 +235,22 @@ def _init_texts_and_nuggets(node, info_default):
             raise NodetypeError('Unexpected nodetype.')
 
         elif isinstance(child, bs4.NavigableString):
-            node.wp_info['regex'] += re.escape(child.string)
+            msg = child.string.strip(' \t\n\r')
+            node.wp_info['regex'] += re.escape(msg)
             expected_type = bs4.Tag
 
         elif isinstance(child, bs4.Tag):
             node.wp_info['regex'] += '(.*)'
+
             name = child.wp_info['params']['wp-name']
             node.wp_info['names'].append(name)
+
             if 'wp-function' in child.wp_info['params']:
                 function = child.wp_info['params']['wp-function']
             else:
                 function = None
             node.wp_info['functions'].append(function)
+
             expected_type = bs4.NavigableString
 
         else:
@@ -298,3 +258,5 @@ def _init_texts_and_nuggets(node, info_default):
 
         if info_default['debug']:
             print('\n\tnode.wp_info["regex"]: "{}"'.format(node.wp_info['regex']))
+
+    node.contents = []
