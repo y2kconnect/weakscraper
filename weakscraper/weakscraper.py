@@ -8,7 +8,8 @@
 from bs4 import BeautifulSoup
 
 # our apps
-from .template import init_tpl
+from .htmlparser import html_parser
+from .template import init_tpl, compare
 from .templateparser import template_parser
 from .utils import serialize
 
@@ -23,15 +24,24 @@ class WeakScraper:
         self.debug = debug
 
         tree_tpl = BeautifulSoup(stream_tpl, 'lxml')
+
+        # 删除字符串首尾的" \t\n\r"
+        html_parser(tree_tpl, debug)
+
         template_parser(tree_tpl, debug)
         self.info = {'tree_tpl': serialize(tree_tpl)}
 
         # 处理标签的"wp-*"属性
         init_tpl(tree_tpl, functions, debug)
-        self.info['tree_Template'] = serialize(tree_tpl)
+        self.tree_tpl = tree_tpl
+        self.info['tree_Template'] = serialize(self.tree_tpl)
 
     def scrap(self, stream_html):
         tree_html = BeautifulSoup(stream_html, 'lxml')
+
+        # 删除字符串首尾的" \t\n\r"
+        html_parser(tree_html, self.debug)
+
         self.info['tree_html'] = serialize(tree_html)
 
         if self.debug:
@@ -52,8 +62,8 @@ class WeakScraper:
                             )
             print(s)
 
-        # results = self.template.compare(tree_html)
-        results = {}
+        # results = {}
+        results = compare(self.tree_tpl, tree_html, self.debug)
         self.info['results'] = results
 
         return results

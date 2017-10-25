@@ -26,10 +26,11 @@ def node_to_json(node, arr_key=None):
 
 def serialize(root, arr_key=None):
     '序列化DOM树, 深度遍历'
+    if arr_key is None:
+        arr_key = ('name', 'attrs', 'wp_info')
+
     arr_tree = []
-    arr_node = []
-    arr_node.append((root, arr_tree))
-    arr_key = ('name', 'attrs', 'wp_info')
+    arr_node = [(root, arr_tree)]
 
     while arr_node:
         node, arr_ret = arr_node.pop()

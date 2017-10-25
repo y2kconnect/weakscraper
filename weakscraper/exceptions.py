@@ -74,18 +74,18 @@ class CompareError(Exception):
 
         message += 'Template genealogy : \n'
         for template in self.genealogy:
-            message += '  ' + template.nodetype + ' : '
+            message += '  ' + template.__class__.__name__ + ' : '
             if hasattr(template, 'name'):
                 message += 'name='
                 message += str(template.name)
                 message += '; '
-            if hasattr(template, 'params'):
-                message += 'params='
-                message += str(template.params)
-                message += ';'
             if hasattr(template, 'attrs'):
                 message += 'attrs='
                 message += str(template.attrs)
+                message += ';'
+            if hasattr(template, 'wp_info'):
+                message += 'wp_info='
+                message += str(template.wp_info)
                 message += ';'
             message += '\n'
 
