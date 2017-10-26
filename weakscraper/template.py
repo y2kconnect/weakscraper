@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 ''' 直接使用bs4建立的DOM树，并且使用递归进行遍历。
-    参考:
-        原template.py
-        template_Template.py
-        template_2.py
-
     node.wp_info        dict类型。记录模板节点的标记信息。
         params              模板节点的标记
         functions           处理的函数信息
@@ -15,33 +10,18 @@
 # python apps
 import bs4
 import re
-import pdb
+# import pdb
 
 # our apps
 from . utils import serialize, node_to_json
 from .exceptions import (
-        NodetypeError, TextError, TagError, TextExpectedError,
-        NonAtomicChildError,
+        CompareError,
+        NonAtomicChildError, NodetypeError,
+        TagError, TextError, TextExpectedError,
         )
 
 
 SEP = '-' * 16
-
-
-# class Template:
-#     node_tpl = None
-#     node_html = None
-#     info_default = None
-# 
-#     def to_json(self):
-#         ret = {
-#                 'node_tpl': None if self.node_tpl is None else \
-#                         serialize(self.node_tpl),
-#                 'node_html': None if self.node_html is None else \
-#                         serialize(self.node_html),
-#                 'info_default': self.info_default,
-#                 }
-#         return ret
 
 
 def init_tpl(root_tpl, functions=None, debug=False):
@@ -49,8 +29,8 @@ def init_tpl(root_tpl, functions=None, debug=False):
     if debug:
         s = '\n{SEP}\ninit_tpl(): ...\n\troot_tpl: {root_tpl}\n\t' \
                 'functions: {functions}\n\tdebug: {debug}'.format(
-                SEP=SEP, root_tpl=serialize(root_tpl),
-                functions=functions, debug=debug,
+                SEP=SEP, root_tpl=serialize(root_tpl), functions=functions,
+                debug=debug,
                 )
         print(s)
 
@@ -85,8 +65,7 @@ def _init_tag(node, info_default):
     if info_default['debug']:
         s = '\n{SEP}\n_init_tag(): ...\n\tnode: {node}\n\tinfo_default: ' \
                 '{info_default}'.format(
-                SEP=SEP, node=node_to_json(node),
-                info_default=info_default,
+                SEP=SEP, node=node_to_json(node), info_default=info_default,
                 )
         print(s)
 
@@ -230,7 +209,7 @@ def _init_texts_and_nuggets(node, info_default):
             # 文本嵌套
             assert child.name == 'wp-nugget'
 
-            node.name = 'nugget'
+            node.name = 'wp-nugget'
             node.wp_info = {
                     'params': child.wp_info['params'],
                     **info_default,
@@ -294,8 +273,9 @@ def _init_texts_and_nuggets(node, info_default):
 def compare(node_tpl, node_html, debug=False):
     if debug:
         s = '\n{SEP}\ncompare(): ...\n\tnode_tpl: {node_tpl}\n\tnode_html: ' \
-                '{node_html}\n\tdebug: {debug}'.format(SEP=SEP,
-                node_tpl=node_tpl, node_html=node_html, debug=debug)
+                '{node_html}\n\tdebug: {debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html, debug=debug,
+                )
         print(s)
 
     results = {}
@@ -347,8 +327,10 @@ def _compare__nugget(node_tpl, node_html, results, debug=False):
     if debug:
         s = '\n{SEP}\n_compare__nugget(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
-                '{debug}'.format(SEP=SEP, node_tpl=node_tpl,
-                node_html=node_html, results=results, debug=debug)
+                '{debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                results=results, debug=debug,
+                )
         print(s)
 
     content = _f(node_tpl, str(node_html.string), debug)
@@ -363,8 +345,10 @@ def _compare__nugget(node_tpl, node_html, results, debug=False):
 def _f(node_tpl, str_or_list, debug=False):
     if debug:
         s = '\n{SEP}\n_f(): ...\n\tnode_tpl: {node_tpl}\n\tstr_or_list: ' \
-                '{str_or_list}\n\tdebug: {debug}'.format(SEP=SEP,
-                node_tpl=node_tpl, str_or_list=str_or_list, debug=debug)
+                '{str_or_list}\n\tdebug: {debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, str_or_list=str_or_list,
+                debug=debug,
+                )
         print(s)
 
     params = node_tpl.wp_info['params']
@@ -427,8 +411,10 @@ def _compare__other(node_tpl, node_html, results, debug=False):
     if debug:
         s = '\n{SEP}\n_compare__tag(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
-                '{debug}'.format(SEP=SEP, node_tpl=node_tpl,
-                node_html=node_html, results=results, debug=debug)
+                '{debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                results=results, debug=debug,
+                )
         print(s)
 
     if (
@@ -463,8 +449,9 @@ def _compare__other(node_tpl, node_html, results, debug=False):
 def _attrs_match(node_tpl, attrs_html, debug=False):
     if debug:
         s = '\n{SEP}\n_attrs_match(): ...\n\tnode_tpl: {node_tpl}\n\t' \
-                'attrs_html: {attrs_html}\n\tdebug: {debug}'.format(SEP=SEP,
-                node_tpl=node_tpl, attrs_html=attrs_html, debug=debug)
+                'attrs_html: {attrs_html}\n\tdebug: {debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, attrs_html=attrs_html, debug=debug,
+                )
         print(s)
 
     params = node_tpl.wp_info['params']
@@ -499,8 +486,10 @@ def _tpl__wp_name_attrs(node_tpl, node_html, results, debug=False):
     if debug:
         s = '\n{SEP}\n_tpl__wp_name_attrs(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
-                '{debug}'.format(SEP=SEP, node_tpl=node_tpl,
-                node_html=node_html, results=results, debug=debug)
+                '{debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                results=results, debug=debug,
+                )
         print(s)
 
     params = node_tpl.wp_info['params']
@@ -523,8 +512,10 @@ def _tpl__wp_leaf(node_tpl, node_html, results, debug=False):
     if debug:
         s = '\n{SEP}\n_tpl__wp_leaf(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
-                '{debug}'.format(SEP=SEP, node_tpl=node_tpl,
-                node_html=node_html, results=results, debug=debug)
+                '{debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                results=results, debug=debug,
+                )
         print(s)
 
     params = node_tpl.wp_info['params']
@@ -572,8 +563,9 @@ def _tpl__wp_leaf(node_tpl, node_html, results, debug=False):
 def _tpl__wp_recursive(node_tpl, node_html, debug=False):
     if debug:
         s = '\n{SEP}\n_tpl__wp_recursive(): ...\n\tnode_tpl: {node_tpl}\n\t' \
-                'node_html: {node_html}\n\tdebug: {debug}'.format(SEP=SEP,
-                node_tpl=node_tpl, node_html=node_html, debug=debug)
+                'node_html: {node_html}\n\tdebug: {debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html, debug=debug,
+                )
         print(s)
 
     k = node_tpl.wp_info['params']['wp-name']
@@ -590,8 +582,9 @@ def _get_all_content(node_html, debug=False):
     'wp-recursive-text: get all the text'
     if debug:
         s = '\n{SEP}\n_get_all_content(): ...\n\tnode_html: {node_html}\n\t' \
-                'debug: {debug}'.format(SEP=SEP, node_html=node_html,
-                debug=debug)
+                'debug: {debug}'.format(
+                SEP=SEP, node_html=node_html, debug=debug,
+                )
         print(s)
 
     arr = [
@@ -610,14 +603,16 @@ def _get_all_content(node_html, debug=False):
 def _tpl__attr_name_dict(node_tpl, node_html, debug=False):
     if debug:
         s = '\n{SEP}\n_tpl__attr_name_dict(): ...\n\tnode_tpl: {node_tpl}' \
-                '\n\tnode_html: {node_html}\n\tdebug: {debug}'.format(SEP=SEP,
-                node_tpl=node_tpl, node_html=node_html, debug=debug)
+                '\n\tnode_html: {node_html}\n\tdebug: {debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html, debug=debug,
+                )
         print(s)
 
     attrs_html = node_html.attrs
     info = {
             key: attrs_html[name]
-            for (name, key) in self.params['wp-attr-name-dict'].items()
+            for (name, key) in \
+                    node_tpl.wp_info['params']['wp-attr-name-dict'].items()
                 if name in attrs_html
             }
 
@@ -631,3 +626,240 @@ def _tpl__attr_name_dict(node_tpl, node_html, debug=False):
 def _tpl__children(node_tpl, node_html, results, debug=False):
     'traversal tag children of template'
     pass
+    if debug:
+        s = '\n{SEP}\n_tpl__children(): ...\n\tnode_tpl: {node_tpl}\n\t' \
+                'node_html: {node_html}\n\tresults: {results}\n\t' \
+                'debug: {debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                results=results, debug=debug,
+                )
+        print(s)
+
+    children_results = {}
+    arr_html_children = node_html.contents
+
+    html_i, html_n = (0, len(arr_html_children))
+    for tpl_child in node_tpl.contents:
+        if html_n <= html_i:
+            # Ignore, html_tree node does not exist
+            break
+        html_i = _html_children_skip(arr_html_children, html_i, html_n, debug)
+
+        if isinstance(tpl_child, bs4.NavigableString):
+            _compare_wrapper(tpl_child, arr_html_children[html_i], debug)
+            html_i += 1
+
+        elif tpl_child.name == 'ignore':
+            if 'wp-until' in tpl_child.wp_info['params']:
+                html_i = _html_children_until(
+                        tpl_child, arr_html_children, html_i, html_n, debug,
+                        )
+            else:
+                html_i = html_n
+
+        elif 'wp-list' in tpl_child.wp_info['params']:
+            html_i, children_results = _html_children_wp_list(
+                    tpl_child, arr_html_children, html_i, html_n, children_results, debug,
+                    )
+
+        else:
+            html_i += _html_children_other(
+                tpl_child, arr_html_children[html_i], children_results, debug,
+                )
+    pass
+
+
+def _html_children_skip(arr, i, n, debug=False):
+    if debug:
+        s = '\n{SEP}\n_html_children_skip(): ...\n\tarr: {arr}\n\ti: {i}' \
+                '\n\tn: {n}\n\tdebug: {debug}'.format(
+                SEP=SEP, arr=arr, i=i, n=n, debug=debug,
+                )
+        print(s)
+
+    while i < n and isinstance(arr[i], bs4.Tag) and arr[i].name == 'script':
+        i += 1
+
+    if debug:
+        print('\n\ti: {}'.format(i))
+
+    return i
+
+
+def _compare_wrapper(tpl_child, html, debug=False):
+    'tpl_child is bs4.NavigableString'
+    if debug:
+        s = '\n{SEP}\n_compare_wrapper(): ...\n\ttpl_child: {tpl_child}\n\t' \
+                'html: {html}\n\tdebug: {debug}'.format(
+                SEP=SEP, tpl_child=tpl_child, html=html, debug=debug,
+                )
+        print(s)
+
+    try:
+        results = compare(html)
+    except CompareError as e:
+        e.register_parent(tpl_child)
+        raise e
+
+    if debug:
+        print('\n\tresults: {}'.format(results))
+
+    return results
+
+
+def _html_children_until(tpl_child, arr_html, i, n, debug=False):
+    ''' tpl_child is not bs4.NavigableString
+        and "wp-until" in tpl_child.wp_info["params"]
+    '''
+    if debug:
+        s = '\n{SEP}\n_html_children_until(): ...\n\ttpl_child: {tpl_child}' \
+                '\n\tarr_html: {arr_html}\n\ti: {i}\n\tn: {n}\n\tdebug: ' \
+                '{debug}'.format(
+                SEP=SEP, tpl_child=tpl_child, arr_html=arr_html, i=i, n=n,
+                debug=debug,
+                )
+        print(s)
+
+    until = tpl_child.wp_info['params']['wp-until']
+
+    while (
+            i < n
+            and not isinstance(arr_html[i], bs4.NavigableString)
+            and arr_html[i].name == until
+            ):
+        i += 1
+
+    if debug:
+        print('\n\ti: {}'.format(i))
+
+    return i
+
+
+def _html_children_wp_list(
+        tpl_child, arr_html, html_i, html_n, children_results, debug=False,
+        ):
+    ''' tpl_child is not bs4.NavigableString
+        and "wp-list" in tpl_child.wp_arr_html["params"]
+    '''
+    if debug:
+        s = '\n{SEP}\n_html_children_wp_list(): ...\n\ttpl_child: ' \
+                '{tpl_child}\n\tarr_html: {arr_html}\n\thtml_i: {html_i}\n\t' \
+                'html_n: {html_n}\n\tchildren_results: {children_results}' \
+                '\n\tdebug: {debug}'.format(
+                SEP=SEP, tpl_child=tpl_child, arr_html=arr_html,
+                html_i=html_i, html_n=html_n,
+                children_results=children_results, debug=debug,
+                )
+        print(s)
+
+    i = html_i
+    params = tpl_child.wp_info['params']
+
+    arr = []
+    for i in range(html_i, html_n):
+        if _check_flag(tpl_child, arr_html[i], debug):
+            x = _compare_wrapper(tpl_child, arr_html[i], debug)
+            arr.append(x)
+        else:
+            break
+
+    if arr and 'wp-function' in params:
+        k = params['wp-function']
+        func = tpl_child.wp_info['functions'][k]
+        arr = func(arr)
+
+    k = params['wp-name']
+    children_results[k] = arr
+
+    if debug:
+        print('\n\ti: {}\n\tchildren_results: {}'.format(i, children_results))
+
+    return (i, children_results)
+
+
+def _check_flag(tpl_child, node_html, debug=False):
+    if debug:
+        s = '\n{SEP}\n_check_flag(): ...\n\ttpl_child: {tpl_child}\n\t' \
+                'node_html: {node_html}\n\tdebug: {debug}'.format(
+                SEP=SEP, tpl_child=tpl_child, node_html=node_html, debug=debug,
+                )
+        print(s)
+
+    flag = (
+            not isinstance(node_html, bs4.NavigableString)
+            and node_html.name == tpl_child.name
+            and _attrs_match(tpl_child, node_html.attrs)
+            )
+
+    if debug:
+        print('\n\tflag: {}'.format(flag))
+
+    return flag
+
+
+def _html_children_other(tpl_child, node_html, children_results, debug=False):
+    ''' current status:
+        not (
+                tpl_child is bs4.NavigableString
+                and tpl_child.name == "wp-ignore"
+                and "wp-list" in tpl_child.wp_arr_html["params"]
+                )
+    '''
+    if debug:
+        s = (
+                '\n{SEP}'
+                '\n_html_children_other(): ...'
+                '\n\ttpl_child: {tpl_child}'
+                '\n\tnode_html: {node_html}'
+                '\n\tchildren_results: {children_results}'
+                '\n\tdebug: {debug}'
+                ).format(
+                SEP=SEP, tpl_child=tpl_child, node_html=node_html,
+                children_results=children_results, debug=debug,
+                )
+        print(s)
+
+    i = 0
+    if (
+            tpl_child.name in ('wp-nugget', 'texts-and-nuggets')
+            or 'wp-optional' not in tpl_child.wp_info['params']
+            or _check_flag(tpl_child, node_html, debug)
+            ):
+        result = _compare_wrapper(tpl_child, node_html, debug)
+        for k, v in result.items():
+            if k in children_results:
+                raise ValueError('Key already defined.')
+            else:
+                children_results[k] = v
+        i += 1
+
+    if debug:
+        print('\n\ti: {}'.format(i))
+
+    return i
+    '''
+    self_child.nodetype in ['nugget', 'texts-and-nuggets', 'tag']
+    and not (
+            (self_child.nodetype == 'tag') and
+            ('wp-optional' in self_child.params) and
+            (
+                (html_position >= html_n_children) or
+                (html['children'][html_position]['nodetype'] != 'tag') or
+                (not self_child.attrs_match(html['children'][html_position]['attrs'])) or
+                (html['children'][html_position]['name'] != self_child.name)
+            )
+
+    -->
+    self_child.nodetype in ['nugget', 'texts-and-nuggets', 'tag']
+    and (
+            self_child.nodetype != 'tag'
+            or 'wp-optional' not in self_child.params
+            or (
+                    html_position < html_n_children
+                    and html['children'][html_position]['nodetype'] == 'tag'
+                    and html['children'][html_position]['name'] == self_child.name
+                    and self_child.attrs_match(html['children'][html_position]['attrs'])
+                    )
+            )
+    '''
+

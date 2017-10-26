@@ -8,10 +8,9 @@
 from bs4 import BeautifulSoup
 
 # our apps
-from .htmlparser import html_parser
 from .template import init_tpl, compare
 from .templateparser import template_parser
-from .utils import serialize
+from .utils import content_strip, serialize
 
 
 class WeakScraper:
@@ -26,7 +25,7 @@ class WeakScraper:
         tree_tpl = BeautifulSoup(stream_tpl, 'lxml')
 
         # 删除字符串首尾的" \t\n\r"
-        html_parser(tree_tpl, debug)
+        content_strip(tree_tpl)
 
         template_parser(tree_tpl, debug)
         self.info = {'tree_tpl': serialize(tree_tpl)}
@@ -40,7 +39,7 @@ class WeakScraper:
         tree_html = BeautifulSoup(stream_html, 'lxml')
 
         # 删除字符串首尾的" \t\n\r"
-        html_parser(tree_html, self.debug)
+        content_strip(tree_html)
 
         self.info['tree_html'] = serialize(tree_html)
 
@@ -67,5 +66,3 @@ class WeakScraper:
         self.info['results'] = results
 
         return results
-
-

@@ -8,6 +8,9 @@ import json
 import sys
 
 
+SEP = '-' * 16
+
+
 def node_to_json(node, arr_key=None):
     '节点转JSON'
     if arr_key is None:
@@ -61,3 +64,21 @@ def show_DOM(root, label='root_tree', stream=sys.stdout, indent=4):
     arr_tree = serialize(root)
     msg = json.dumps(arr_tree, ensure_ascii=False, indent=indent)
     print('{label}:\n{msg}'.format(label=label, msg=msg), file=stream)
+
+
+def content_strip(root):
+    '删除字符串首尾的" \t\n\r"'
+    # 堆栈
+    arr_node = [root]
+
+    while arr_node:
+        node = arr_node.pop()
+
+        if hasattr(node, 'contents'):
+            [
+                    x.string.replace_with(x.string.strip(' \t\n\r'))
+                    for x in node.contents
+                        if x.__class__.__name__ == 'NavigableString'
+                    ]
+            arr_node.extend(reversed(node.contents))
+
