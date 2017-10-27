@@ -877,6 +877,9 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
                 children_results[k] = v
         i += 1
 
+    elif tpl_child.name != node_html.name:
+        raise TagError(tpl_child, node_html)
+
     if debug and DEBUG_COMPARE:
         print('\n\ti: {}'.format(i))
 
