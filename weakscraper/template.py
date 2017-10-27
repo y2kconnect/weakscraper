@@ -21,7 +21,7 @@ from .exceptions import (
 
 
 DEBUG_INIT_TPL = False
-DEBUG_COMPARE = False
+DEBUG_COMPARE = True
 SEP = '-' * 16
 CHARACTERS_REMOVED = ' \t\n\r'
 
@@ -699,8 +699,8 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
         raise ExcessNodeError(node_tpl, arr_html_children[html_i])
 
     if node_tpl.wp_info and 'wp-name' in node_tpl.wp_info['params']:
-        name = params['wp-name']
-        results[name] = _f(children_results)
+        name = node_tpl.wp_info['params']['wp-name']
+        results[name] = _f(node_tpl, children_results)
     else:
         for k, v in children_results.items():
             if k in results:
