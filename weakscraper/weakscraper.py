@@ -61,7 +61,6 @@ class WeakScraper:
                             )
             print(s)
 
-        # results = {}
         results = compare(self.tree_tpl, tree_html, self.debug)
         self.info['results'] = results
 

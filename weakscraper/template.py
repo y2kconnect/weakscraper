@@ -685,7 +685,8 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
 
         elif tpl_child.wp_info and 'wp-list' in tpl_child.wp_info['params']:
             html_i, children_results = _html_children_wp_list(
-                    tpl_child, arr_html_children, html_i, html_n, children_results, debug,
+                    tpl_child, arr_html_children, html_i, html_n,
+                    children_results, debug,
                     )
 
         else:

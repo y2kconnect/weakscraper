@@ -80,5 +80,13 @@ def content_strip(root):
                     for x in node.contents
                         if x.__class__.__name__ == 'NavigableString'
                     ]
+            child_first = node.contents[0]
+            if (
+                    1 < len(node.contents)
+                    and isinstance(child_first, bs4.NavigableString)
+                    and str(child_first) == ''
+                    ):
+                # 若第一个子节点是'', 删除
+                child_first.extract()
             arr_node.extend(reversed(node.contents))
 
