@@ -14,7 +14,7 @@ import re
 # our apps
 from . utils import serialize, node_to_json
 from .exceptions import (
-        CompareError,
+        CompareError, ExcessNodeError,
         NonAtomicChildError, NodetypeError,
         TagError, TextError, TextExpectedError,
         )
