@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 from weakscraper import WeakScraper
+from weakscraper.utils import serialize
 
 
 def _get_args():
@@ -43,9 +44,10 @@ def _get_args():
             name_tpl, encoding_tpl, name_html, encoding_html, name_output,
             debug,
             )
-    s = 'name_tpl, encoding_tpl, name_html, encoding_html, name_output, ' \
-        'debug:\n\t{}\n'
-    print(s.format(arr))
+    if debug:
+        s = 'name_tpl, encoding_tpl, name_html, encoding_html, name_output,' \
+            ' debug:\n\t{}\n'
+        print(s.format(arr))
 
     if name_tpl is None or name_html is None:
         parser.print_help()
@@ -71,8 +73,17 @@ def main():
 
     if name_output:
         with open(name_output, 'w') as f_output:
-            json.dump(result_data, f_output, ensure_ascii=False, indent=4)
-    print('Ok!')
+            f_output.write('result_data:\n')
+            json.dump(scraper.info['results'], f_output, ensure_ascii=False, indent=4)
+            if debug:
+                f_output.write('\n\n\ntree_tpl:\n')
+                json.dump(scraper.info['tree_tpl'], f_output, ensure_ascii=False, indent=4)
+                f_output.write('\n\n\ntree_html:\n')
+                json.dump(scraper.info['tree_html'], f_output, ensure_ascii=False, indent=4)
+                f_output.write('\n\n\ntree_Template:\n')
+                json.dump(scraper.info['tree_Template'], f_output, ensure_ascii=False, indent=4)
+    if debug:
+        print('Ok!')
 
 
 if __name__ == '__main__':

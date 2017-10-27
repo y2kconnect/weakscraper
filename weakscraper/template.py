@@ -10,7 +10,6 @@
 # python apps
 import bs4
 import re
-# import pdb
 
 # our apps
 from . utils import serialize, node_to_json
@@ -21,12 +20,15 @@ from .exceptions import (
         )
 
 
+DEBUG_INIT_TPL = False
+DEBUG_COMPARE = False
 SEP = '-' * 16
+CHARACTERS_REMOVED = ' \t\n\r'
 
 
 def init_tpl(root_tpl, functions=None, debug=False):
     '遍历模板DOM树'
-    if debug:
+    if debug and DEBUG_INIT_TPL:
         s = '\n{SEP}\ninit_tpl(): ...\n\troot_tpl: {root_tpl}\n\t' \
                 'functions: {functions}\n\tdebug: {debug}'.format(
                 SEP=SEP, root_tpl=serialize(root_tpl), functions=functions,
@@ -44,7 +46,7 @@ def init_tpl(root_tpl, functions=None, debug=False):
     while arr_node:
         node = arr_node.pop()
 
-        if debug:
+        if debug and DEBUG_INIT_TPL:
             print('node: {}\n\tnode.name: {}'.format(node,
                     None if hasattr(node, 'name') else node.name))
 
@@ -57,12 +59,12 @@ def init_tpl(root_tpl, functions=None, debug=False):
         if hasattr(node, 'contents'):
             # 下级节点
             arr_node.extend(reversed(node.contents))
-        if debug:
+        if debug and DEBUG_INIT_TPL:
             print('node: {}'.format(node_to_json(node)))
 
 
 def _init_tag(node, info_default):
-    if info_default['debug']:
+    if info_default['debug'] and DEBUG_INIT_TPL:
         s = '\n{SEP}\n_init_tag(): ...\n\tnode: {node}\n\tinfo_default: ' \
                 '{info_default}'.format(
                 SEP=SEP, node=node_to_json(node), info_default=info_default,
@@ -136,7 +138,7 @@ def _init_tag(node, info_default):
 
 def _check_text_flag(node, info_default):
     'check node.children: text or wp-nugget'
-    if info_default['debug']:
+    if info_default['debug'] and DEBUG_INIT_TPL:
         s = '\n{SEP}\n_check_text_flag(): ...\n\tnode: {node}'.format(
                 SEP=SEP, node=node_to_json(node),
                 )
@@ -150,7 +152,7 @@ def _check_text_flag(node, info_default):
             for child in node.contents
             ]
 
-    if info_default['debug']:
+    if info_default['debug'] and DEBUG_INIT_TPL:
         print('\n\tarr: {}'.format(arr))
     return arr
 
@@ -164,7 +166,7 @@ def _boolean_text_or_nugget(node):
 
 def _process_grandchildren(arr_children, grandchildren, info_default):
     'NavigableString or wp-nugget --> texts-and-nuggets'
-    if info_default['debug']:
+    if info_default['debug'] and DEBUG_INIT_TPL:
         s = '\n{SEP}\n_process_grandchildren(): ...\n\tarr_children: ' \
                 '{arr_children}\n\tgrandchildren: {grandchildren}\n\t' \
                 'info_default: {info_default}'.format(
@@ -188,7 +190,7 @@ def _process_grandchildren(arr_children, grandchildren, info_default):
 
 def _init_texts_and_nuggets(node, info_default):
     'init texts-and-nuggets'
-    if info_default['debug']:
+    if info_default['debug'] and DEBUG_INIT_TPL:
         s = '\n{SEP}\n_init_texts_and_nuggets(): ...\n\tnode: {node}\n\t' \
                 'info_default: {info_default}'.format(
                 SEP=SEP, node=serialize(node), info_default=info_default,
@@ -230,7 +232,7 @@ def _init_texts_and_nuggets(node, info_default):
             }
     params = node.wp_info['params']
 
-    if info_default['debug']:
+    if info_default['debug'] and DEBUG_INIT_TPL:
         s = '\n\tparams["regex"]: "{}"'.format(params['regex'])
         print(s)
 
@@ -241,7 +243,7 @@ def _init_texts_and_nuggets(node, info_default):
             raise ValueError('Unexpected nodetype.')
 
         elif isinstance(child, bs4.NavigableString):
-            msg = str(child.string).strip(' \t\n\r')
+            msg = child.string.strip(CHARACTERS_REMOVED)
             params['regex'] += re.escape(msg)
 
             expected_type = bs4.Tag
@@ -263,7 +265,7 @@ def _init_texts_and_nuggets(node, info_default):
         else:
             raise ValueError('Unexpected nodetype.')
 
-        if info_default['debug']:
+        if info_default['debug'] and DEBUG_INIT_TPL:
             s = '\n\tparams["regex"]: "{}"'.format(params['regex'])
             print(s)
 
@@ -271,7 +273,7 @@ def _init_texts_and_nuggets(node, info_default):
 
 
 def compare(node_tpl, node_html, debug=False):
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\ncompare(): ...\n\tnode_tpl: {node_tpl}\n\tnode_html: ' \
                 '{node_html}\n\tdebug: {debug}'.format(
                 SEP=SEP, node_tpl=node_tpl, node_html=node_html, debug=debug,
@@ -280,29 +282,16 @@ def compare(node_tpl, node_html, debug=False):
 
     results = {}
 
-    if debug:
-        s = 'node_tpl: {node_tpl}\n\tnode_tpl.name: {name_node_tpl}\n' \
-                'node_html: {node_html}\n\tnode_html.name: {name_node_html}' \
-                .format(
-                        node_tpl=serialize(node_tpl),
-                        name_node_tpl=None if hasattr(node_tpl, 'name') \
-                                else node_tpl.name,
-                        node_html=serialize(node_html),
-                        name_node_html=None if hasattr(node_html, 'name') \
-                                else node_html.name,
-                        )
-        print(s)
-
     if isinstance(node_tpl, bs4.NavigableString):
         _compare__text(node_tpl, node_html, debug)
-    elif isinstance(node_tpl, bs4.Tag) and node_tpl.name == 'nugget':
+    elif isinstance(node_tpl, bs4.Tag) and node_tpl.name == 'wp-nugget':
         _compare__nugget(node_tpl, node_html, results, debug)
     elif isinstance(node_tpl, bs4.Tag) and node_tpl.name == 'texts-and-nuggets':
         _compare__texts_and_nuggets(node_tpl, node_html, results, debug)
     else:
         _compare__other(node_tpl, node_html, results, debug)
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\tresults: {}'.format(results))
     return results
 
@@ -311,7 +300,7 @@ def _compare__text(node_tpl, node_html, debug=False):
     ''' node_tpl is bs4.NavigableString
     Ignore, format reorder and the content is inconsistent
     '''
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_compare__text(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tdebug: {debug}'.format(
                 SEP=SEP, node_tpl=node_tpl, node_html=node_html, debug=debug,
@@ -324,7 +313,7 @@ def _compare__text(node_tpl, node_html, debug=False):
 
 def _compare__nugget(node_tpl, node_html, results, debug=False):
     'node_tpl.name == "nugget"'
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_compare__nugget(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
                 '{debug}'.format(
@@ -338,12 +327,12 @@ def _compare__nugget(node_tpl, node_html, results, debug=False):
     k = node_tpl.wp_info['params']['wp-name']
     results[k] = content
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\tresults: {}'.format(results))
 
 
 def _f(node_tpl, str_or_list, debug=False):
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_f(): ...\n\tnode_tpl: {node_tpl}\n\tstr_or_list: ' \
                 '{str_or_list}\n\tdebug: {debug}'.format(
                 SEP=SEP, node_tpl=node_tpl, str_or_list=str_or_list,
@@ -361,7 +350,7 @@ def _f(node_tpl, str_or_list, debug=False):
     else:
         ret = serialize(str_or_list)
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\tret: {}'.format(ret))
 
     return ret
@@ -369,7 +358,7 @@ def _f(node_tpl, str_or_list, debug=False):
 
 def _compare__texts_and_nuggets(node_tpl, node_html, results, debug=False):
     'node_tpl.name == "texts-and-nuggets"'
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_compare__texts_and_nuggets(): ...\n\t' \
                 'node_tpl: {node_tpl}\n\tnode_html: {node_html}\n\tresults:' \
                 '{results}\n\tdebug: {debug}'.format(
@@ -378,37 +367,68 @@ def _compare__texts_and_nuggets(node_tpl, node_html, results, debug=False):
                 )
         print(s)
 
-    wp_info = node_tpl['wp-info']
-    # regex = '^' + wp_info['regex'] + '$'
-    regex = wp_info['regex']
+    params = node_tpl.wp_info['params']
+
+    regex = '^' + params['regex'] + '$'
     match = re.match(regex, str(node_html.string))
     if match is None:
         raise TextError(node_tpl, serialize(node_html))
-    groups = match.groups()
+    arr = match.groups()
 
-    n = len(groups)
-    assert (
-            n == len(wp_info['params']['names'])
-            and n == len(wp_info['functions'])
-            )
+    n = len(arr)
+    assert n == len(params['names']) == len(params['functions'])
 
     for i in range(n):
-        pass
-        function_name = wp_info['functions'][i]
-        x = groups[i]
-        if function_name:
-            function = wp_info['functions'][function_name]
-            x = function(x)
+        x = arr[i].strip(CHARACTERS_REMOVED)
+        k = params['functions'][i]
+        if k:
+            func = params['functions'][k]
+            x = func(x)
 
-        k = wp_info['names'][i]
+        k = params['names'][i]
         results[k] = x
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\tresults: {}'.format(results))
 
 
 def _compare__other(node_tpl, node_html, results, debug=False):
-    if debug:
+    if debug and DEBUG_COMPARE:
+        s = '\n{SEP}\n_compare__tag(): ...\n\tnode_tpl: {node_tpl}\n\t' \
+                'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
+                '{debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                results=results, debug=debug,
+                )
+        print(s)
+
+    if not isinstance(node_html, bs4.Tag):
+        raise NodetypeError(node_tpl, node_html)
+    elif node_tpl.name != node_html.name:
+        raise TagError(node_tpl, node_html)
+    elif not _attrs_match(node_tpl, node_html.attrs, debug):
+        # The properties defined in the template do not exist in the HTML
+        return
+
+    if node_tpl.wp_info is None and node_tpl.contents:
+        _tpl__children(node_tpl, node_html, results, debug)
+    else:
+        params = node_tpl.wp_info['params']
+
+        if 'wp-name-attrs' in params:
+            _tpl__wp_name_attrs(node_tpl, node_html, results, debug)
+
+        if ('wp_info' in node_tpl and 'params' in node_tpl.wp_info):
+            _tpl__children(node_tpl, node_html, results, debug)
+        elif node_html.contents:
+            _tpl__children(node_tpl, node_html, results, debug)
+
+    if debug and DEBUG_COMPARE:
+        print('\n\tresults: {}'.format(results))
+
+
+def _compare__other_2(node_tpl, node_html, results, debug=False):
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_compare__tag(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
                 '{debug}'.format(
@@ -424,66 +444,74 @@ def _compare__other(node_tpl, node_html, results, debug=False):
             ):
         raise TagError(node_tpl, node_html)
 
-    elif _attrs_match(node_tpl, node_html.attrs, debug):
-        # The properties defined in the template do not exist in the HTML
-        return
-
-    elif not ('wp_info' in node_tpl and 'params' in node_tpl.wp_info):
-        return
-
-    params = node_tpl.wp_info['params']
-
-    if 'wp-name-attrs' in params:
-        _tpl__wp_name_attrs(node_tpl, node_html, results, debug)
-
-    if 'wp-leaf' in params:
-        _tpl__wp_leaf(node_tpl, node_html, results, debug)
-    elif 'contents' in node_html:
-        # look at the children, ignore: ('meta', 'img', 'hr', 'br')
+    elif isinstance(node_tpl, bs4.BeautifulSoup):
         _tpl__children(node_tpl, node_html, results, debug)
 
-    if debug:
+    else:
+        if not _attrs_match(node_tpl, node_html.attrs, debug):
+            # The properties defined in the template do not exist in the HTML
+            return
+
+        elif ('wp_info' in node_tpl and 'params' in node_tpl.wp_info):
+            _tpl__children(node_tpl, node_html, results, debug)
+
+        else:
+            params = node_tpl.wp_info['params']
+
+            if 'wp-name-attrs' in params:
+                _tpl__wp_name_attrs(node_tpl, node_html, results, debug)
+
+            if 'wp-leaf' in params:
+                _tpl__wp_leaf(node_tpl, node_html, results, debug)
+            elif 'contents' in node_html:
+                # look at the children, ignore: ('meta', 'img', 'hr', 'br')
+                _tpl__children(node_tpl, node_html, results, debug)
+
+    if debug and DEBUG_COMPARE:
         print('\n\tresults: {}'.format(results))
 
 
 def _attrs_match(node_tpl, attrs_html, debug=False):
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_attrs_match(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'attrs_html: {attrs_html}\n\tdebug: {debug}'.format(
                 SEP=SEP, node_tpl=node_tpl, attrs_html=attrs_html, debug=debug,
                 )
         print(s)
 
-    params = node_tpl.wp_info['params']
     attrs_tpl = node_tpl.attrs
-    ret = True
 
-    if 'wp-ignore-attrs' in params:
-        for k, v in attrs_tpl.items():
-            if not (k in attrs_html and attrs_html[k] == v):
-                ret = False
-                break
-
-    elif 'wp-attr-name-dict' in params:
-        ret = any([
-                True
-                for k in params['wp-attr-name-dict']
-                    if k in attrs_html
-                ])
-
-    else:
-        ''' At present, only compare k, not v
-            (Format reordering leads to v inconsistencies)
-        '''
+    if isinstance(node_tpl, bs4.NavigableString) or not node_tpl.wp_info:
         ret = attrs_tpl.keys() == attrs_html.keys()
+    else:
+        params = node_tpl.wp_info['params']
+        if 'wp-ignore-attrs' in params:
+            for k, v in attrs_tpl.items():
+                if not (k in attrs_html and attrs_html[k] == v):
+                    ret = False
+                    break
 
-    if debug:
+        elif 'wp-attr-name-dict' in params:
+            ret = any([
+                    True
+                    for k in params['wp-attr-name-dict']
+                        if k in attrs_html
+                    ])
+
+        else:
+            ''' At present, only compare k, not v
+                (Format reordering leads to v inconsistencies)
+            '''
+            ret = attrs_tpl.keys() == attrs_html.keys()
+
+    if debug and DEBUG_COMPARE:
         print('\n\tret: {}'.format(ret))
 
+    return ret
 
 def _tpl__wp_name_attrs(node_tpl, node_html, results, debug=False):
     'Gets the contents of node_html.attrs'
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_tpl__wp_name_attrs(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
                 '{debug}'.format(
@@ -503,13 +531,12 @@ def _tpl__wp_name_attrs(node_tpl, node_html, results, debug=False):
     k = params['wp-name-attrs']
     results[k] = content
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\tresults: {}'.format(results))
 
 
 def _tpl__wp_leaf(node_tpl, node_html, results, debug=False):
-    pass
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_tpl__wp_leaf(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
                 '{debug}'.format(
@@ -556,12 +583,12 @@ def _tpl__wp_leaf(node_tpl, node_html, results, debug=False):
         if not flag:
             assert not hasattr(node_html, 'contents')
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\tresults: {}'.format(results))
 
 
 def _tpl__wp_recursive(node_tpl, node_html, debug=False):
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_tpl__wp_recursive(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tdebug: {debug}'.format(
                 SEP=SEP, node_tpl=node_tpl, node_html=node_html, debug=debug,
@@ -571,7 +598,7 @@ def _tpl__wp_recursive(node_tpl, node_html, debug=False):
     k = node_tpl.wp_info['params']['wp-name']
     arr = _f(node_tpl, node_html.contents, debug)
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n\tk: {k}\n\tarr: {arr}'.format(SEP=SEP, k=k, arr=arr)
         print(s)
 
@@ -580,7 +607,7 @@ def _tpl__wp_recursive(node_tpl, node_html, debug=False):
 
 def _get_all_content(node_html, debug=False):
     'wp-recursive-text: get all the text'
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_get_all_content(): ...\n\tnode_html: {node_html}\n\t' \
                 'debug: {debug}'.format(
                 SEP=SEP, node_html=node_html, debug=debug,
@@ -593,7 +620,7 @@ def _get_all_content(node_html, debug=False):
                 if isinstance(x, bs4.NavigableString)
             ]
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n\tarr: {arr}'.format(SEP=SEP, arr=arr)
         print(s)
 
@@ -601,7 +628,7 @@ def _get_all_content(node_html, debug=False):
 
 
 def _tpl__attr_name_dict(node_tpl, node_html, debug=False):
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_tpl__attr_name_dict(): ...\n\tnode_tpl: {node_tpl}' \
                 '\n\tnode_html: {node_html}\n\tdebug: {debug}'.format(
                 SEP=SEP, node_tpl=node_tpl, node_html=node_html, debug=debug,
@@ -616,7 +643,7 @@ def _tpl__attr_name_dict(node_tpl, node_html, debug=False):
                 if name in attrs_html
             }
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n\tinfo: {info}'.format(SEP=SEP, info=info)
         print(s)
 
@@ -625,8 +652,7 @@ def _tpl__attr_name_dict(node_tpl, node_html, debug=False):
 
 def _tpl__children(node_tpl, node_html, results, debug=False):
     'traversal tag children of template'
-    pass
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_tpl__children(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\t' \
                 'debug: {debug}'.format(
@@ -657,20 +683,36 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
             else:
                 html_i = html_n
 
-        elif 'wp-list' in tpl_child.wp_info['params']:
+        elif tpl_child.wp_info and 'wp-list' in tpl_child.wp_info['params']:
             html_i, children_results = _html_children_wp_list(
                     tpl_child, arr_html_children, html_i, html_n, children_results, debug,
                     )
 
         else:
-            html_i += _html_children_other(
+            i = _html_children_other(
                 tpl_child, arr_html_children[html_i], children_results, debug,
                 )
-    pass
+            html_i += i
+    html_i = _html_children_skip(arr_html_children, html_i, html_n, debug)
+
+    if html_i != html_n:
+        raise ExcessNodeError(node_tpl, arr_html_children[html_i])
+
+    if node_tpl.wp_info and 'wp-name' in node_tpl.wp_info['params']:
+        name = params['wp-name']
+        results[name] = _f(children_results)
+    else:
+        for k, v in children_results.items():
+            if k in results:
+                raise ValueError('Key already defined.')
+            results[k] = v
+
+    if debug and DEBUG_COMPARE:
+        print('\n\tresults: {}'.format(results))
 
 
 def _html_children_skip(arr, i, n, debug=False):
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_html_children_skip(): ...\n\tarr: {arr}\n\ti: {i}' \
                 '\n\tn: {n}\n\tdebug: {debug}'.format(
                 SEP=SEP, arr=arr, i=i, n=n, debug=debug,
@@ -680,28 +722,28 @@ def _html_children_skip(arr, i, n, debug=False):
     while i < n and isinstance(arr[i], bs4.Tag) and arr[i].name == 'script':
         i += 1
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\ti: {}'.format(i))
 
     return i
 
 
-def _compare_wrapper(tpl_child, html, debug=False):
+def _compare_wrapper(tpl_child, node_html, debug=False):
     'tpl_child is bs4.NavigableString'
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_compare_wrapper(): ...\n\ttpl_child: {tpl_child}\n\t' \
-                'html: {html}\n\tdebug: {debug}'.format(
-                SEP=SEP, tpl_child=tpl_child, html=html, debug=debug,
+                'node_html: {node_html}\n\tdebug: {debug}'.format(
+                SEP=SEP, tpl_child=tpl_child, node_html=node_html, debug=debug,
                 )
         print(s)
 
     try:
-        results = compare(html)
+        results = compare(tpl_child, node_html, debug)
     except CompareError as e:
         e.register_parent(tpl_child)
         raise e
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\tresults: {}'.format(results))
 
     return results
@@ -711,7 +753,7 @@ def _html_children_until(tpl_child, arr_html, i, n, debug=False):
     ''' tpl_child is not bs4.NavigableString
         and "wp-until" in tpl_child.wp_info["params"]
     '''
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_html_children_until(): ...\n\ttpl_child: {tpl_child}' \
                 '\n\tarr_html: {arr_html}\n\ti: {i}\n\tn: {n}\n\tdebug: ' \
                 '{debug}'.format(
@@ -729,7 +771,7 @@ def _html_children_until(tpl_child, arr_html, i, n, debug=False):
             ):
         i += 1
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\ti: {}'.format(i))
 
     return i
@@ -741,7 +783,7 @@ def _html_children_wp_list(
     ''' tpl_child is not bs4.NavigableString
         and "wp-list" in tpl_child.wp_arr_html["params"]
     '''
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_html_children_wp_list(): ...\n\ttpl_child: ' \
                 '{tpl_child}\n\tarr_html: {arr_html}\n\thtml_i: {html_i}\n\t' \
                 'html_n: {html_n}\n\tchildren_results: {children_results}' \
@@ -771,14 +813,14 @@ def _html_children_wp_list(
     k = params['wp-name']
     children_results[k] = arr
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\ti: {}\n\tchildren_results: {}'.format(i, children_results))
 
     return (i, children_results)
 
 
 def _check_flag(tpl_child, node_html, debug=False):
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_check_flag(): ...\n\ttpl_child: {tpl_child}\n\t' \
                 'node_html: {node_html}\n\tdebug: {debug}'.format(
                 SEP=SEP, tpl_child=tpl_child, node_html=node_html, debug=debug,
@@ -791,7 +833,7 @@ def _check_flag(tpl_child, node_html, debug=False):
             and _attrs_match(tpl_child, node_html.attrs)
             )
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\tflag: {}'.format(flag))
 
     return flag
@@ -805,7 +847,7 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
                 and "wp-list" in tpl_child.wp_arr_html["params"]
                 )
     '''
-    if debug:
+    if debug and DEBUG_COMPARE:
         s = (
                 '\n{SEP}'
                 '\n_html_children_other(): ...'
@@ -822,7 +864,8 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
     i = 0
     if (
             tpl_child.name in ('wp-nugget', 'texts-and-nuggets')
-            or 'wp-optional' not in tpl_child.wp_info['params']
+            or tpl_child.wp_info
+            and 'wp-optional' not in tpl_child.wp_info['params']
             or _check_flag(tpl_child, node_html, debug)
             ):
         result = _compare_wrapper(tpl_child, node_html, debug)
@@ -833,7 +876,7 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
                 children_results[k] = v
         i += 1
 
-    if debug:
+    if debug and DEBUG_COMPARE:
         print('\n\ti: {}'.format(i))
 
     return i

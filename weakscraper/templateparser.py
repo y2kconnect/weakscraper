@@ -27,11 +27,14 @@ PossibleParams = (
         )
 
 
+DEBUG_TEMPLATEPARSER = False
+
+
 def template_parser(root, debug=False):
     ''' 深度遍历, 处理标签属性wp-*
         node.wp_info，dict类型。记录模板节点的标记信息。
     '''
-    if debug:
+    if debug and DEBUG_TEMPLATEPARSER:
         print('''----------------
                 templateparser.template_parser(): ...
                     debug: {}
@@ -50,7 +53,7 @@ def template_parser(root, debug=False):
         x = getattr(node, 'attrs', None)
         if x:
             arr_wp = [k for k in x.keys() if k in PossibleParams]
-            if debug:
+            if debug and DEBUG_TEMPLATEPARSER:
                 s = '\n----------------\nnode: {}\n\tattrs: {}\n\tarr_wp: {}'
                 print(s.format(node, node.attrs, arr_wp))
         if not arr_wp:
@@ -78,7 +81,7 @@ def template_parser(root, debug=False):
         if params:
             node.wp_info = {'params': params}
 
-        if debug:
+        if debug and DEBUG_TEMPLATEPARSER:
             s = '\n\t----------------\n\tattrs: {}\n\twp_info: {}'.format(
                     node.attrs,
                     node.wp_info if hasattr(node, 'wp_info') else None,
