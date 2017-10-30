@@ -10,7 +10,6 @@
 # python apps
 import bs4
 import re
-import pdb
 
 # our apps
 from . utils import serialize, node_to_json
@@ -311,6 +310,10 @@ def _compare__text(node_tpl, node_html, debug=False):
 
     if not isinstance(node_html, bs4.NavigableString):
         raise NodetypeError(node_tpl, serialize(node_html))
+
+    # 严格要求字符串一致
+    if node_html.string != node_tpl.string:
+        raise TextError(node_tpl, node_html)
 
 
 def _compare__nugget(node_tpl, node_html, results, debug=False):
