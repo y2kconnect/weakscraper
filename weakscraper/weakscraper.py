@@ -23,8 +23,6 @@ class WeakScraper:
         self.debug = debug
 
         tree_tpl = BeautifulSoup(stream_tpl, 'lxml')
-
-        # 删除字符串首尾的" \t\n\r"
         content_strip(tree_tpl)
 
         template_parser(tree_tpl, debug)
@@ -37,8 +35,6 @@ class WeakScraper:
 
     def scrap(self, stream_html):
         tree_html = BeautifulSoup(stream_html, 'lxml')
-
-        # 删除字符串首尾的" \t\n\r"
         content_strip(tree_html)
 
         self.info['tree_html'] = serialize(tree_html)

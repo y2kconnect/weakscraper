@@ -1,6 +1,9 @@
+# python apps
 import collections
 import json
 
+# our apps
+from .utils import serialize
 
 
 def genealogy_pretty_output(genealogy):
@@ -69,30 +72,37 @@ class CompareError(Exception):
         self.genealogy.appendleft(template)
 
     def __str__(self):
-        message = ''
-        message += self.__class__.__name__ + ' detected !\n'
+        arr = [
+                '{} detected !'.format(self.__class__.__name__),
+                'Template genealogy :'
+                ]
 
-        message += 'Template genealogy : \n'
         for template in self.genealogy:
-            message += '  ' + template.__class__.__name__ + ' : '
+            arr_attr = []
             if hasattr(template, 'name'):
-                message += 'name='
-                message += str(template.name)
-                message += '; '
+                s = 'name={}'.format(template.name)
+                arr_attr.append(s)
             if hasattr(template, 'attrs'):
-                message += 'attrs='
-                message += str(template.attrs)
-                message += ';'
+                s = 'attrs={}'.format(template.attrs)
+                arr_attr.append(s)
             if hasattr(template, 'wp_info'):
-                message += 'wp_info='
-                message += str(template.wp_info)
-                message += ';'
-            message += '\n'
+                s = 'wp_info={}'.format(str(template.wp_info))
+                arr_attr.append(s)
 
-        message += 'Html element : \n'
-        message += json.dumps(self.html, indent=2)
+            msg = '{SEP}<{class_name}: ({arr_attr})>'.format(
+                    SEP=' ' * 4,
+                    class_name=template.__class__.__name__,
+                    arr_attr='; '.join(arr_attr)
+                    )
+            arr.append(msg)
 
-        return message
+        arr.extend([
+                'Html element :',
+                json.dumps(serialize(self.html), ensure_ascii=False, indent=2),
+                ])
+
+        ret = '\n'.join(arr)
+        return ret
 
 
 class NodetypeError(CompareError):

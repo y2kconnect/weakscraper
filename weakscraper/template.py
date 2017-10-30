@@ -10,10 +10,12 @@
 # python apps
 import bs4
 import re
+import pdb
 
 # our apps
 from . utils import serialize, node_to_json
 from .exceptions import (
+        AttrsError,
         CompareError, ExcessNodeError,
         NonAtomicChildError, NodetypeError,
         TagError, TextError, TextExpectedError,
@@ -289,10 +291,10 @@ def compare(node_tpl, node_html, debug=False):
     elif isinstance(node_tpl, bs4.Tag) and node_tpl.name == 'texts-and-nuggets':
         _compare__texts_and_nuggets(node_tpl, node_html, results, debug)
     else:
-        _compare__other(node_tpl, node_html, results, debug)
+        _compare__tag(node_tpl, node_html, results, debug)
 
     if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
+        print('\n\tcompare(): ... results: {}'.format(results))
     return results
 
 
@@ -328,7 +330,7 @@ def _compare__nugget(node_tpl, node_html, results, debug=False):
     results[k] = content
 
     if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
+        print('\n\t_compare__nugget(): ... results: {}'.format(results))
 
 
 def _f(node_tpl, str_or_list, debug=False):
@@ -389,10 +391,10 @@ def _compare__texts_and_nuggets(node_tpl, node_html, results, debug=False):
         results[k] = x
 
     if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
+        print('\n\t_compare__texts_and_nuggets(): ... results: {}'.format(results))
 
 
-def _compare__other(node_tpl, node_html, results, debug=False):
+def _compare__tag(node_tpl, node_html, results, debug=False):
     if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n_compare__tag(): ...\n\tnode_tpl: {node_tpl}\n\t' \
                 'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
@@ -402,73 +404,23 @@ def _compare__other(node_tpl, node_html, results, debug=False):
                 )
         print(s)
 
-    if not isinstance(node_html, bs4.Tag):
-        raise NodetypeError(node_tpl, node_html)
-    elif node_tpl.name != node_html.name:
-        raise TagError(node_tpl, node_html)
-    elif not _attrs_match(node_tpl, node_html.attrs, debug):
-        # The properties defined in the template do not exist in the HTML
-        return
-
     if node_tpl.wp_info is None and node_tpl.contents:
         _tpl__children(node_tpl, node_html, results, debug)
+
     else:
         params = node_tpl.wp_info['params']
 
         if 'wp-name-attrs' in params:
             _tpl__wp_name_attrs(node_tpl, node_html, results, debug)
 
-        if ('wp_info' in node_tpl and 'params' in node_tpl.wp_info):
-            _tpl__children(node_tpl, node_html, results, debug)
+        if 'wp-leaf' in params:
+            _tpl__wp_leaf(node_tpl, node_html, results, debug)
+
         elif node_html.contents:
             _tpl__children(node_tpl, node_html, results, debug)
 
     if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
-
-
-def _compare__other_2(node_tpl, node_html, results, debug=False):
-    if debug and DEBUG_COMPARE:
-        s = '\n{SEP}\n_compare__tag(): ...\n\tnode_tpl: {node_tpl}\n\t' \
-                'node_html: {node_html}\n\tresults: {results}\n\tdebug: ' \
-                '{debug}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
-                results=results, debug=debug,
-                )
-        print(s)
-
-    if (
-            isinstance(node_tpl, bs4.Tag)
-            and isinstance(node_html, bs4.Tag)
-            and node_tpl.name != node_html.name
-            ):
-        raise TagError(node_tpl, node_html)
-
-    elif isinstance(node_tpl, bs4.BeautifulSoup):
-        _tpl__children(node_tpl, node_html, results, debug)
-
-    else:
-        if not _attrs_match(node_tpl, node_html.attrs, debug):
-            # The properties defined in the template do not exist in the HTML
-            return
-
-        elif ('wp_info' in node_tpl and 'params' in node_tpl.wp_info):
-            _tpl__children(node_tpl, node_html, results, debug)
-
-        else:
-            params = node_tpl.wp_info['params']
-
-            if 'wp-name-attrs' in params:
-                _tpl__wp_name_attrs(node_tpl, node_html, results, debug)
-
-            if 'wp-leaf' in params:
-                _tpl__wp_leaf(node_tpl, node_html, results, debug)
-            elif 'contents' in node_html:
-                # look at the children, ignore: ('meta', 'img', 'hr', 'br')
-                _tpl__children(node_tpl, node_html, results, debug)
-
-    if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
+        print('\n\t_compare__tag(): ... results: {}'.format(results))
 
 
 def _attrs_match(node_tpl, attrs_html, debug=False):
@@ -532,7 +484,7 @@ def _tpl__wp_name_attrs(node_tpl, node_html, results, debug=False):
     results[k] = content
 
     if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
+        print('\n\t_tpl__wp_name_attrs(): ... results: {}'.format(results))
 
 
 def _tpl__wp_leaf(node_tpl, node_html, results, debug=False):
@@ -584,7 +536,7 @@ def _tpl__wp_leaf(node_tpl, node_html, results, debug=False):
             assert not hasattr(node_html, 'contents')
 
     if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
+        print('\n\t_tpl__wp_leaf(): ... results: {}'.format(results))
 
 
 def _tpl__wp_recursive(node_tpl, node_html, debug=False):
@@ -709,7 +661,7 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
             results[k] = v
 
     if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
+        print('\n\t_tpl__children(): ... results: {}'.format(results))
 
 
 def _html_children_skip(arr, i, n, debug=False):
@@ -745,7 +697,7 @@ def _compare_wrapper(tpl_child, node_html, debug=False):
         raise e
 
     if debug and DEBUG_COMPARE:
-        print('\n\tresults: {}'.format(results))
+        print('\n\t_compare_wrapper(): ... results: {}'.format(results))
 
     return results
 
@@ -862,11 +814,19 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
                 )
         print(s)
 
+    if not isinstance(node_html, bs4.Tag):
+        raise NodetypeError(node_tpl, node_html)
+    elif tpl_child.name != node_html.name:
+        raise TagError(tpl_child, node_html)
+    elif not _attrs_match(tpl_child, node_html.attrs, debug):
+        # The properties defined in the template do not exist in the HTML
+        raise AttrsError(tpl_child, node_html)
+
     i = 0
     if (
             tpl_child.name in ('wp-nugget', 'texts-and-nuggets')
             or tpl_child.wp_info
-            and 'wp-optional' not in tpl_child.wp_info['params']
+                and 'wp-optional' not in tpl_child.wp_info['params']
             or _check_flag(tpl_child, node_html, debug)
             ):
         result = _compare_wrapper(tpl_child, node_html, debug)
@@ -897,15 +857,26 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
             )
 
     -->
-    self_child.nodetype in ['nugget', 'texts-and-nuggets', 'tag']
-    and (
-            self_child.nodetype != 'tag'
+    (
+            self_child.nodetype in ['nugget', 'texts-and-nuggets']
             or 'wp-optional' not in self_child.params
             or (
                     html_position < html_n_children
                     and html['children'][html_position]['nodetype'] == 'tag'
-                    and html['children'][html_position]['name'] == self_child.name
                     and self_child.attrs_match(html['children'][html_position]['attrs'])
+                    and html['children'][html_position]['name'] == self_child.name
+                    )
+            )
+
+    -->
+    (
+            tp_child.anme in ['nugget', 'texts-and-nuggets']
+            or 'wp-optional' not in tpl_child.wp_info['params']
+            or (
+                    html_i < html_n
+                    and not isinstance(node_html.contents[html_i], bs4.NavigableString)
+                    and _attrs_match(tpl_child, node_html.contents[html_i].attrs)
+                    and node_html.contents[html_i].name == tpl_child.name
                     )
             )
     '''

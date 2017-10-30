@@ -67,7 +67,7 @@ def show_DOM(root, label='root_tree', stream=sys.stdout, indent=4):
 
 
 def content_strip(root):
-    '删除字符串首尾的" \t\n\r"'
+    ''' 若 字符串.strip() == ''，则删除 '''
     # 堆栈
     arr_node = [root]
 
@@ -76,17 +76,11 @@ def content_strip(root):
 
         if hasattr(node, 'contents'):
             [
-                    x.string.replace_with(x.string.strip(' \t\n\r'))
+                    x.string.replace_with(x.string.strip())
+                        if x.string.strip() else x.extract()
                     for x in node.contents
                         if x.__class__.__name__ == 'NavigableString'
                     ]
-            child_first = node.contents[0]
-            if (
-                    1 < len(node.contents)
-                    and isinstance(child_first, bs4.NavigableString)
-                    and str(child_first) == ''
-                    ):
-                # 若第一个子节点是'', 删除
-                child_first.extract()
-            arr_node.extend(reversed(node.contents))
 
+            if node.contents:
+                arr_node.extend(reversed(node.contents))
