@@ -82,7 +82,7 @@ def _init_tag(node, info_default):
     if tag == 'wp-ignore':
         return
 
-    if 'wp_info' in node and 'params' in node['wp_info']:
+    if node.wp_info and 'params' in node.wp_info:
         params = node.wp_info['params']
 
         i, j = ('wp-function', 'wp-name')
