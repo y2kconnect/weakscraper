@@ -22,7 +22,18 @@ def node_to_json(node, arr_key=None):
     else:
         for s in arr_key:
             x = getattr(node, s, None)
-            if x:
+            if x is None:
+                continue
+            if s == 'wp_info':
+                info[s] = {
+                        'params': x['params'],
+                        'functions': {
+                                k: str(v)
+                                for k, v in x['functions'].items()
+                                } if 'functions' in x else None,
+                        'debug': x['debug'] if 'debug' in x else None,
+                        }
+            else:
                 info[s] = x
     return info
 

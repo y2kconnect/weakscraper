@@ -22,9 +22,8 @@ from .exceptions import (
 
 
 DEBUG_INIT_TPL = False
-DEBUG_COMPARE = True
+DEBUG_COMPARE = False
 SEP = '-' * 16
-CHARACTERS_REMOVED = ' \t\n\r'
 
 
 def init_tpl(root_tpl, functions=None, debug=False):
@@ -75,6 +74,9 @@ def _init_tag(node, info_default):
     if isinstance(node, bs4.NavigableString):
         return
 
+    if node.wp_info:
+        node.wp_info.update(info_default)
+
     tag = node.name
 
     if tag == 'wp-ignore':
@@ -100,11 +102,8 @@ def _init_tag(node, info_default):
             del params[j]
 
             new_node = bs4.Tag(name='wp-ignore', parent=node)
-            new_node.wp_info = {
-                    'params': {},
-                    'functions': info_default['functions'],
-                    'debug': info_default['debug'],
-                    }
+            new_node.wp_info = {'params': {}}
+            new_node.wp_info.update(info_default)
             node.contents = [new_node]
             return
 
@@ -244,7 +243,7 @@ def _init_texts_and_nuggets(node, info_default):
             raise ValueError('Unexpected nodetype.')
 
         elif isinstance(child, bs4.NavigableString):
-            msg = child.string.strip(CHARACTERS_REMOVED)
+            msg = child.string.strip()
             params['regex'] += re.escape(msg)
 
             expected_type = bs4.Tag
@@ -384,7 +383,7 @@ def _compare__texts_and_nuggets(node_tpl, node_html, results, debug=False):
     assert n == len(params['names']) == len(params['functions'])
 
     for i in range(n):
-        x = arr[i].strip(CHARACTERS_REMOVED)
+        x = arr[i].strip()
         k = params['functions'][i]
         if k:
             func = params['functions'][k]

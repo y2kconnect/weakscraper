@@ -7,11 +7,10 @@ class TestWPFunction(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
-            <html>
-                <head wp-function="sum">
-                    <number wp-name="a" wp-function="int"/>
-                    <number wp-name="b" wp-function="int"/>
-                </head>
+            <head wp-function="sum">
+              <number wp-name="a" wp-function="int"/>
+              <number wp-name="b" wp-function="int"/>
+            </head>
             </html>
             """
 
@@ -26,15 +25,14 @@ class TestWPFunction(unittest.TestCase):
     def test_sum(self):
         content = """
             <!DOCTYPE html>
-            <html>
-                <head>
-                    <number>
-                        12
-                    </number>
-                    <number>
-                        -5
-                    </number>
-                </head>
+            <head>
+              <number>
+                12
+              </number>
+              <number>
+                -5
+              </number>
+            </head>
             </html>
             """
 

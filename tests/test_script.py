@@ -7,11 +7,10 @@ class TestScript(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
-            <html>
-                <body>
-                    <tag1>a</tag1>
-                    <tag2>b</tag2>
-                </body>
+            <body>
+              <tag1>a</tag1>
+              <tag2>b</tag2>
+            </body>
             </html>
             """
 
@@ -21,12 +20,11 @@ class TestScript(unittest.TestCase):
     def test_first(self):
         content = """
             <!DOCTYPE html>
-            <html>
-                <body>
-                    <script>random script</script>
-                    <tag1>a</tag1>
-                    <tag2>b</tag2>
-                </body>
+            <body>
+              <script>random script</script>
+              <tag1>a</tag1>
+              <tag2>b</tag2>
+            </body>
             </html>
             """
 
@@ -38,12 +36,11 @@ class TestScript(unittest.TestCase):
     def test_middle(self):
         content = """
             <!DOCTYPE html>
-            <html>
-                <body>
-                    <tag1>a</tag1>
-                    <script>random script</script>
-                    <tag2>b</tag2>
-                </body>
+            <body>
+              <tag1>a</tag1>
+              <script>random script</script>
+              <tag2>b</tag2>
+            </body>
             </html>
             """
 
@@ -55,12 +52,11 @@ class TestScript(unittest.TestCase):
     def test_end(self):
         content = """
             <!DOCTYPE html>
-            <html>
-                <body>
-                    <tag1>a</tag1>
-                    <tag2>b</tag2>
-                    <script>random script</script>
-                </body>
+            <body>
+              <tag1>a</tag1>
+              <tag2>b</tag2>
+              <script>random script</script>
+            </body>
             </html>
             """
 
