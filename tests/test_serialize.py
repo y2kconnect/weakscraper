@@ -25,7 +25,8 @@ class TestSerialize(unittest.TestCase):
         self.info = {
             "nodetype": "BeautifulSoup",
             "name": "[document]",
-            "children": [
+            "attrs": {},
+            "contents": [
                 {
                     "nodetype": "Doctype",
                     "content": "html"
@@ -33,89 +34,67 @@ class TestSerialize(unittest.TestCase):
                 {
                     "nodetype": "Tag",
                     "name": "html",
-                    "children": [
-                        {
-                            "nodetype": "NavigableString",
-                            "content": "\n"
-                            },
+                    "attrs": {},
+                    "contents": [
                         {
                             "nodetype": "Tag",
                             "name": "head",
-                            "children": [
-                                {
-                                    "nodetype": "NavigableString",
-                                    "content": "\n"
-                                    },
+                            "attrs": {},
+                            "contents": [
                                 {
                                     "nodetype": "Tag",
                                     "name": "title",
-                                    "children": [{
-                                        "nodetype": "NavigableString",
-                                        "content": "Title"
-                                        }]
-                                    },
-                                {
-                                    "nodetype": "NavigableString",
-                                    "content": "\n"
+                                    "attrs": {},
+                                    "contents": [
+                                        {
+                                            "nodetype": "NavigableString",
+                                            "content": "Title"
+                                            }
+                                        ]
                                     }
                                 ]
-                            },
-                        {
-                            "nodetype": "NavigableString",
-                            "content": "\n"
                             },
                         {
                             "nodetype": "Tag",
                             "name": "body",
                             "attrs": {"attr1": "val1"},
-                            "params": {"wp-name": "body"},
-                            "children": [
-                                {
-                                    "nodetype": "NavigableString",
-                                    "content": "\n"
-                                    },
+                            "wp_info": {
+                                "params": {"wp-name": "body"},
+                                "functions": None,
+                                "debug": False
+                                },
+                            "contents": [
                                 {
                                     "nodetype": "Tag",
                                     "name": "div",
-                                    "children": [
-                                        {
-                                            "nodetype": "NavigableString",
-                                            "content": "\n                        Hi ! My name is "
-                                            },
+                                    "attrs": {},
+                                    "contents": [
                                         {
                                             "nodetype": "Tag",
-                                            "name": "wp-nugget",
-                                            "params": {"wp-name": "name"},
-                                            "children": []
-                                            },
-                                        {
-                                            "nodetype": "NavigableString",
-                                            "content": ".\n                    "
+                                            "name": "texts-and-nuggets",
+                                            "attrs": {},
+                                            "wp_info": {
+                                                "params": {
+                                                    "regex": "Hi\\ \\!\\ My\\ name\\ is(.*)\\.",
+                                                    "names": ["name"],
+                                                    "functions": [None]
+                                                    },
+                                                "functions": None,
+                                                "debug": False
+                                                }
                                             }
                                         ]
-                                    },
-                                {
-                                    "nodetype": "NavigableString",
-                                    "content": "\n"
                                     }
                                 ]
-                            },
-                        {
-                            "nodetype": "NavigableString",
-                            "content": "\n"
                             }
                         ]
-                    },
-                {
-                    "nodetype": "NavigableString",
-                    "content": "\n"
                     }
                 ]
             }
         self.obj = weakscraper.WeakScraper(html_tpl)
 
     def test_serialize(self):
-        info = weakscraper.weakscraper.serialize(self.obj.tree_tpl)
+        info = self.obj.info['tree_Template']
         self.assertEqual(info, self.info)
 
 
