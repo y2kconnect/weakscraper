@@ -10,6 +10,7 @@
 # python apps
 import bs4
 import re
+import pdb
 
 # our apps
 from . utils import serialize, node_to_json
@@ -444,6 +445,8 @@ def _attrs_match(node_tpl, attrs_html, debug=False):
                 if not (k in attrs_html and attrs_html[k] == v):
                     ret = False
                     break
+            else:
+                 ret = True
 
         elif 'wp-attr-name-dict' in params:
             ret = any([
@@ -629,8 +632,8 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
             _compare_wrapper(tpl_child, arr_html_children[html_i], debug)
             html_i += 1
 
-        elif tpl_child.name == 'ignore':
-            if 'wp-until' in tpl_child.wp_info['params']:
+        elif tpl_child.name == 'wp-ignore':
+            if tpl_child.wp_info and 'wp-until' in tpl_child.wp_info['params']:
                 html_i = _html_children_until(
                         tpl_child, arr_html_children, html_i, html_n, debug,
                         )
@@ -719,10 +722,9 @@ def _html_children_until(tpl_child, arr_html, i, n, debug=False):
 
     until = tpl_child.wp_info['params']['wp-until']
 
-    while (
-            i < n
-            and not isinstance(arr_html[i], bs4.NavigableString)
-            and arr_html[i].name == until
+    while i < n and (
+            isinstance(arr_html[i], bs4.NavigableString)
+            or arr_html[i].name != until
             ):
         i += 1
 

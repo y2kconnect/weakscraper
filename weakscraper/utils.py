@@ -27,10 +27,13 @@ def node_to_json(node, arr_key=None):
             if s == 'wp_info':
                 info[s] = {
                         'params': x['params'],
-                        'functions': {
-                                k: str(v)
-                                for k, v in x['functions'].items()
-                                } if 'functions' in x else None,
+                        'functions':
+                                {
+                                        k: str(v)
+                                        for k, v in x['functions'].items()
+                                        }
+                                if 'functions' in x and x['functions']
+                                    else None,
                         'debug': x['debug'] if 'debug' in x else None,
                         }
             else:
