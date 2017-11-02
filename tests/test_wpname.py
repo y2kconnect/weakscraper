@@ -7,10 +7,9 @@ class TestWPName(unittest.TestCase):
     def setUp(self):
         template_string = """
             <!DOCTYPE html>
-            <html>
-                <head wp-name="head">
-                    <title wp-name="title"/>
-                </head>
+            <head wp-name="head">
+              <title wp-name="title"/>
+            </head>
             </html>
             """
 

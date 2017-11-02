@@ -11,6 +11,7 @@
 import bs4
 import re
 import pdb
+import pprint
 
 # our apps
 from . utils import serialize, node_to_json
@@ -23,7 +24,7 @@ from .exceptions import (
 
 
 DEBUG_INIT_TPL = False
-DEBUG_COMPARE = False
+DEBUG_COMPARE = True
 SEP = '-' * 16
 
 
@@ -336,24 +337,22 @@ def _compare__nugget(node_tpl, node_html, results, debug=False):
         print('\n\t_compare__nugget(): ... results: {}'.format(results))
 
 
-def _f(node_tpl, str_or_list, debug=False):
+def _f(node_tpl, obj, debug=False):
     if debug and DEBUG_COMPARE:
-        s = '\n{SEP}\n_f(): ...\n\tnode_tpl: {node_tpl}\n\tstr_or_list: ' \
-                '{str_or_list}\n\tdebug: {debug}'.format(
-                SEP=SEP, node_tpl=node_tpl, str_or_list=str_or_list,
+        s = '\n{SEP}\n_f(): ...\n\tnode_tpl: {node_tpl}\n\tobj: ' \
+                '{obj}\n\tdebug: {debug}'.format(
+                SEP=SEP, node_tpl=node_tpl, obj=obj,
                 debug=debug,
                 )
         print(s)
 
     params = node_tpl.wp_info['params']
 
+    ret = obj
     if 'wp-function' in params and 'wp-list' not in params:
         k = params['wp-function']
         func = node_tpl.wp_info['functions'][k]
-        ret = func(str_or_list)
-
-    else:
-        ret = serialize(str_or_list)
+        ret = func(obj)
 
     if debug and DEBUG_COMPARE:
         print('\n\tret: {}'.format(ret))
@@ -421,6 +420,11 @@ def _compare__tag(node_tpl, node_html, results, debug=False):
 
         elif node_html.contents:
             _tpl__children(node_tpl, node_html, results, debug)
+
+        elif 'wp-name' in params:
+            # node_html没有子节点
+            k = params['wp-name']
+            results[k] = {}
 
     if debug and DEBUG_COMPARE:
         print('\n\t_compare__tag(): ... results: {}'.format(results))
@@ -623,9 +627,6 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
 
     html_i, html_n = (0, len(arr_html_children))
     for tpl_child in node_tpl.contents:
-        if html_n <= html_i:
-            # Ignore, html_tree node does not exist
-            break
         html_i = _html_children_skip(arr_html_children, html_i, html_n, debug)
 
         if isinstance(tpl_child, bs4.NavigableString):
@@ -651,6 +652,7 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
                 tpl_child, arr_html_children[html_i], children_results, debug,
                 )
             html_i += i
+
     html_i = _html_children_skip(arr_html_children, html_i, html_n, debug)
 
     if html_i != html_n:
@@ -658,7 +660,7 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
 
     if node_tpl.wp_info and 'wp-name' in node_tpl.wp_info['params']:
         name = node_tpl.wp_info['params']['wp-name']
-        results[name] = _f(node_tpl, children_results)
+        results[name] = _f(node_tpl, children_results, debug)
     else:
         for k, v in children_results.items():
             if k in results:
@@ -754,21 +756,21 @@ def _html_children_wp_list(
     i = html_i
     params = tpl_child.wp_info['params']
 
-    arr = []
+    arr_result = []
     for i in range(html_i, html_n):
         if _check_flag(tpl_child, arr_html[i], debug):
             x = _compare_wrapper(tpl_child, arr_html[i], debug)
-            arr.append(x)
+            arr_result.append(x)
         else:
             break
 
-    if arr and 'wp-function' in params:
+    if 'wp-function' in params:
         k = params['wp-function']
         func = tpl_child.wp_info['functions'][k]
-        arr = func(arr)
+        arr_result = func(arr_result)
 
     k = params['wp-name']
-    children_results[k] = arr
+    children_results[k] = arr_result
 
     if debug and DEBUG_COMPARE:
         print('\n\ti: {}\n\tchildren_results: {}'.format(i, children_results))
