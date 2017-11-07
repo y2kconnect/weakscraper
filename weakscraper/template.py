@@ -76,7 +76,7 @@ def _init_tag(node, info_default):
     if isinstance(node, bs4.NavigableString):
         return
 
-    if node.wp_info:
+    if getattr(node, 'wp_info', None):
         node.wp_info.update(info_default)
 
     tag = node.name
@@ -84,7 +84,7 @@ def _init_tag(node, info_default):
     if tag == 'wp-ignore':
         return
 
-    if node.wp_info and 'params' in node.wp_info:
+    if getattr(node, 'wp_info', None) and 'params' in node.wp_info:
         params = node.wp_info['params']
 
         i, j = ('wp-function', 'wp-name')
@@ -281,7 +281,6 @@ def compare(node_tpl, node_html, debug=False):
                 SEP=SEP, node_tpl=node_tpl, node_html=node_html, debug=debug,
                 )
         print(s)
-
     results = {}
 
     if isinstance(node_tpl, bs4.NavigableString):
@@ -406,7 +405,7 @@ def _compare__tag(node_tpl, node_html, results, debug=False):
                 )
         print(s)
 
-    if node_tpl.wp_info is None and node_tpl.contents:
+    if getattr(node_tpl, 'wp_info', None) is None and node_tpl.contents:
         _tpl__children(node_tpl, node_html, results, debug)
 
     else:
@@ -440,7 +439,7 @@ def _attrs_match(node_tpl, attrs_html, debug=False):
 
     attrs_tpl = node_tpl.attrs
 
-    if isinstance(node_tpl, bs4.NavigableString) or not node_tpl.wp_info:
+    if isinstance(node_tpl, bs4.NavigableString) or getattr(node_tpl, 'wp_info', None) is None:
         ret = attrs_tpl.keys() == attrs_html.keys()
     else:
         params = node_tpl.wp_info['params']
@@ -641,13 +640,17 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
             else:
                 html_i = html_n
 
-        elif tpl_child.wp_info and 'wp-list' in tpl_child.wp_info['params']:
+        elif (
+                getattr(tpl_child, 'wp_info', None)
+                and 'wp-list' in tpl_child.wp_info['params']
+                ):
             html_i, children_results = _html_children_wp_list(
                     tpl_child, arr_html_children, html_i, html_n,
                     children_results, debug,
                     )
 
         else:
+            # 含texts_and_nuggets的父节点(无wp_info属性)
             i = _html_children_other(
                 tpl_child, arr_html_children[html_i], children_results, debug,
                 )
@@ -658,7 +661,10 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
     if html_i != html_n:
         raise ExcessNodeError(node_tpl, arr_html_children[html_i])
 
-    if node_tpl.wp_info and 'wp-name' in node_tpl.wp_info['params']:
+    if (
+            getattr(node_tpl, 'wp_info', None)
+            and 'wp-name' in node_tpl.wp_info['params']
+            ):
         name = node_tpl.wp_info['params']['wp-name']
         results[name] = _f(node_tpl, children_results, debug)
     else:
@@ -820,18 +826,19 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
                 )
         print(s)
 
-    if not isinstance(node_html, bs4.Tag):
-        raise NodetypeError(node_tpl, node_html)
-    elif tpl_child.name != node_html.name:
-        raise TagError(tpl_child, node_html)
-    elif not _attrs_match(tpl_child, node_html.attrs, debug):
-        # The properties defined in the template do not exist in the HTML
-        raise AttrsError(tpl_child, node_html)
+    if tpl_child.name != 'texts-and-nuggets':
+        if not isinstance(node_html, bs4.Tag):
+            raise NodetypeError(tpl_child, node_html)
+        elif tpl_child.name != node_html.name:
+            raise TagError(tpl_child, node_html)
+        elif not _attrs_match(tpl_child, node_html.attrs, debug):
+            # The properties defined in the template do not exist in the HTML
+            raise AttrsError(tpl_child, node_html)
 
     i = 0
     if (
             tpl_child.name in ('wp-nugget', 'texts-and-nuggets')
-            or tpl_child.wp_info
+            or getattr(tpl_child, 'wp_info', None)
                 and 'wp-optional' not in tpl_child.wp_info['params']
             or _check_flag(tpl_child, node_html, debug)
             ):
