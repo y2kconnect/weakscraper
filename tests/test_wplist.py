@@ -88,9 +88,9 @@ class TestWPListAttrNameDict(unittest.TestCase):
             <!DOCTYPE html>
             <html>
                 <body>
-                    <a href='http://www.163.com' class='test_01' trage='_blank'>163</a>
-                    <a href='http://www.sina.com' class='test_02' trage='_blank'>sina</a>
-                    <a href='http://www.sohu.com' class='test_03' trage='_blank'>sohu</a>
+                    <a href='http://www.163.com' class='test_01 abc' trage='_blank'>163</a>
+                    <a href='http://www.sina.com' class='test_02 123' trage='_blank'>sina</a>
+                    <a href='http://www.sohu.com' class='test_03 测试' trage='_blank'>sohu</a>
                 </body>
             </html>
             """
@@ -103,17 +103,17 @@ class TestWPListAttrNameDict(unittest.TestCase):
                         {
                             "link": "163",
                             "url": "http://www.163.com",
-                            "class_name": "test_01",
+                            "class_name": ["test_01", "abc"],
                             },
                         {
                             "link": "sina",
                             "url": "http://www.sina.com",
-                            "class_name": "test_02",
+                            "class_name": ["test_02", "123"],
                             },
                         {
                             "link": "sohu",
                             "url": "http://www.sohu.com",
-                            "class_name": "test_03",
+                            "class_name": ["test_03", "测试"],
                             },
                         ],
                 },

@@ -38,7 +38,7 @@ class TestWPAttrNameDict(unittest.TestCase):
             <!DOCTYPE html>
             <html>
                 <body>
-                    <a href='http://www.163.com' class='test_01' trage='_blank'>test</a>
+                    <a href='http://www.163.com' class='test_01 class_a' trage='_blank'>test</a>
                 </body>
             </html>
             """
@@ -47,11 +47,11 @@ class TestWPAttrNameDict(unittest.TestCase):
 
         info = {
                 "body": {
-                    "link": "test",
-                    "url": "http://www.163.com",
-                    "class_name": "test_01",
-                },
-            }
+                        "link": "test",
+                        "url": "http://www.163.com",
+                        "class_name": ["test_01", "class_a"],
+                        },
+                }
 
         self.assertEqual(result_data, info)
 
@@ -88,11 +88,11 @@ class TestWPAttrNameDict(unittest.TestCase):
 
         info = {
             "url": "http://www.163.com",
-            "class_name": "test_01",
+            "class_name": ["test_01"],
             "picture": "http://www.image.com/files/8813/5551/7470/cruise-ship.png",
             "width": "100",
             "height": "168",
-            "class_name_img": "image",
+            "class_name_img": ["image"],
             }
 
         self.assertEqual(result_data, info)
