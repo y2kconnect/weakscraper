@@ -558,6 +558,11 @@ def _tpl__wp_recursive(node_tpl, node_html, debug=False):
     k = node_tpl.wp_info['params']['wp-name']
     arr = _f(node_tpl, node_html.contents, debug)
 
+    arr = [
+            x if isinstance(x, bs4.NavigableString) else serialize(x)
+            for x in arr
+            ]
+
     if debug and DEBUG_COMPARE:
         s = '\n{SEP}\n\tk: {k}\n\tarr: {arr}'.format(SEP=SEP, k=k, arr=arr)
         print(s)

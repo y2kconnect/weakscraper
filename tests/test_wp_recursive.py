@@ -27,7 +27,7 @@ class TestWPRecursive(unittest.TestCase):
                     <div>
                         <p>
                             Hi !<br>
-                            1234<hr>
+                            1234<br>
                             test
                         </p>
                     </div>
@@ -38,32 +38,24 @@ class TestWPRecursive(unittest.TestCase):
         result_data = self.scraper.scrap(content)
 
         info = {
-            "begin": {
-                "content": [
-                    {
-                        "content": "Hi !",
-                        "nodetype": "text"
-                    },
-                    {
-                        "attrs": {},
-                        "name": "br",
-                        "nodetype": "tag"
-                    },
-                    {
-                        "content": "1234",
-                        "nodetype": "text"
-                    },
-                    {
-                        "attrs": {},
-                        "name": "hr",
-                        "nodetype": "tag"
-                    },
-                    {
-                        "content": "test",
-                        "nodetype": "text"
+                "begin": {
+                    "content": [
+                        "Hi !",
+                        {
+                            "nodetype": "Tag",
+                            "name": "br",
+                            "attrs": {}
+                            },
+                        "1234",
+                        {
+                            "nodetype": "Tag",
+                            "name": "br",
+                            "attrs": {}
+                            },
+                        "test"
+                        ]
                     }
-                ]
-            }
-        }
+                }
+
 
         self.assertEqual(result_data, info)
