@@ -759,7 +759,6 @@ def _html_children_wp_list(
                 )
         print(s)
 
-    i = html_i
     params = tpl_child.wp_info['params']
 
     arr_result = []
@@ -769,6 +768,9 @@ def _html_children_wp_list(
             arr_result.append(x)
         else:
             break
+    else:
+         # not "break"
+         i = html_n
 
     if 'wp-function' in params:
         k = params['wp-function']
