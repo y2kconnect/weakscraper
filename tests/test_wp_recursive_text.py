@@ -27,11 +27,11 @@ class TestWPRecursiveText(unittest.TestCase):
                     <div>
                         <p>
                             Hi !<br>
-                            1234<hr>
+                            1234<br>
                             test
-                            <p>
+                            <em>
                                 abcdefg
-                            </p>
+                            </em>
                         </p>
                     </div>
                 </body>
