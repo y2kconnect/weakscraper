@@ -159,13 +159,6 @@ def _check_text_flag(node, info_default):
     return arr
 
 
-def _boolean_text_or_nugget(node):
-    '节点是 NavigableString or wp-nugget'
-    flag = isinstance(node, bs4.NavigableString) \
-            or isinstance(node, bs4.Tag) and node.name == 'wp-nugget'
-    return flag
-
-
 def _process_grandchildren(arr_children, grandchildren, info_default):
     'NavigableString or wp-nugget --> texts-and-nuggets'
     if info_default['debug'] and DEBUG_INIT_TPL:
@@ -405,6 +398,15 @@ def _compare__tag(node_tpl, node_html, results, debug=False):
                 )
         print(s)
 
+    if node_tpl.name != 'texts-and-nuggets':
+        if not isinstance(node_html, bs4.Tag):
+            raise NodetypeError(tpl_child, node_html)
+        elif node_tpl.name != node_html.name:
+            raise TagError(tpl_child, node_html)
+        elif not _attrs_match(node_tpl, node_html.attrs, debug):
+            # The properties defined in the template do not exist in the HTML
+            raise AttrsError(tpl_child, node_html)
+
     if getattr(node_tpl, 'wp_info', None) is None and node_tpl.contents:
         _tpl__children(node_tpl, node_html, results, debug)
 
@@ -628,9 +630,12 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
 
     children_results = {}
     arr_html_children = node_html.contents
+    if not arr_html_children:
+        return
 
     html_i, html_n = (0, len(arr_html_children))
     for tpl_child in node_tpl.contents:
+        print('\n_tpl__children() --> html_n: {}, html_i: {}'.format(html_n, html_i))
         html_i = _html_children_skip(arr_html_children, html_i, html_n, debug)
 
         if isinstance(tpl_child, bs4.NavigableString):
@@ -660,6 +665,9 @@ def _tpl__children(node_tpl, node_html, results, debug=False):
                 tpl_child, arr_html_children[html_i], children_results, debug,
                 )
             html_i += i
+
+        if html_n <= html_i:
+            break
 
     html_i = _html_children_skip(arr_html_children, html_i, html_n, debug)
 
@@ -833,15 +841,6 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
                 )
         print(s)
 
-    if tpl_child.name != 'texts-and-nuggets':
-        if not isinstance(node_html, bs4.Tag):
-            raise NodetypeError(tpl_child, node_html)
-        elif tpl_child.name != node_html.name:
-            raise TagError(tpl_child, node_html)
-        elif not _attrs_match(tpl_child, node_html.attrs, debug):
-            # The properties defined in the template do not exist in the HTML
-            raise AttrsError(tpl_child, node_html)
-
     i = 0
     if (
             tpl_child.name in ('wp-nugget', 'texts-and-nuggets')
@@ -857,47 +856,10 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
                 children_results[k] = v
         i += 1
 
-    elif tpl_child.name != node_html.name:
-        raise TagError(tpl_child, node_html)
+    # elif tpl_child.name != node_html.name:
+    #     raise TagError(tpl_child, node_html)
 
     if debug and DEBUG_COMPARE:
         print('\n\ti: {}'.format(i))
 
     return i
-    '''
-    self_child.nodetype in ['nugget', 'texts-and-nuggets', 'tag']
-    and not (
-            (self_child.nodetype == 'tag') and
-            ('wp-optional' in self_child.params) and
-            (
-                (html_position >= html_n_children) or
-                (html['children'][html_position]['nodetype'] != 'tag') or
-                (not self_child.attrs_match(html['children'][html_position]['attrs'])) or
-                (html['children'][html_position]['name'] != self_child.name)
-            )
-
-    -->
-    (
-            self_child.nodetype in ['nugget', 'texts-and-nuggets']
-            or 'wp-optional' not in self_child.params
-            or (
-                    html_position < html_n_children
-                    and html['children'][html_position]['nodetype'] == 'tag'
-                    and self_child.attrs_match(html['children'][html_position]['attrs'])
-                    and html['children'][html_position]['name'] == self_child.name
-                    )
-            )
-
-    -->
-    (
-            tp_child.anme in ['nugget', 'texts-and-nuggets']
-            or 'wp-optional' not in tpl_child.wp_info['params']
-            or (
-                    html_i < html_n
-                    and not isinstance(node_html.contents[html_i], bs4.NavigableString)
-                    and _attrs_match(tpl_child, node_html.contents[html_i].attrs)
-                    and node_html.contents[html_i].name == tpl_child.name
-                    )
-            )
-    '''
-
