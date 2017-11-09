@@ -148,7 +148,7 @@
 </symbol>
 </g>
 </defs>
-<g id="surface147951">
+<g id="surface239257">
 <rect x="0" y="0" width="1690" height="1486" style="fill:rgb(100%,100%,100%);fill-opacity:1;stroke:none;"/>
 <path style="fill-rule:evenodd;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 6.7 11.908828 L 8.9 11.908828 C 9.39707 11.908828 9.8 12.311758 9.8 12.808828 C 9.8 13.305898 9.39707 13.708828 8.9 13.708828 L 6.7 13.708828 C 6.20293 13.708828 5.8 13.305898 5.8 12.808828 C 5.8 12.311758 6.20293 11.908828 6.7 11.908828 " transform="matrix(20,0,0,20,-28,-29.95)"/>
 <g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
@@ -567,8 +567,6 @@
   <use xlink:href="#glyph2-6" x="361.884766" y="19.566243"/>
   <use xlink:href="#glyph2-7" x="381.884766" y="19.566243"/>
 </g>
-<path style="fill-rule:evenodd;fill:rgb(0%,0%,100%);fill-opacity:1;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 51.338672 39.297891 L 51.338672 38.297891 L 50.838672 38.297891 L 51.838672 37.297891 L 52.838672 38.297891 L 52.338672 38.297891 L 52.338672 39.297891 Z M 51.338672 39.297891 " transform="matrix(20,0,0,20,-28,-29.95)"/>
-<path style="fill:none;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 51.338672 39.297891 L 51.338672 38.297891 L 50.838672 38.297891 L 51.838672 37.297891 L 52.838672 38.297891 L 52.338672 38.297891 L 52.338672 39.297891 Z M 51.338672 39.297891 " transform="matrix(20,0,0,20,-28,-29.95)"/>
 <path style="fill-rule:evenodd;fill:rgb(100%,100%,100%);fill-opacity:1;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(0%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M 3.2 66.533242 L 5.4 66.533242 C 5.89707 66.533242 6.3 66.936172 6.3 67.433242 C 6.3 67.930312 5.89707 68.333242 5.4 68.333242 L 3.2 68.333242 C 2.70293 68.333242 2.3 67.930312 2.3 67.433242 C 2.3 66.936172 2.70293 66.533242 3.2 66.533242 " transform="matrix(20,0,0,20,-28,-29.95)"/>
 <g style="fill:rgb(0%,0%,0%);fill-opacity:1;">
   <use xlink:href="#glyph0-20" x="36.007813" y="1322.623155"/>
