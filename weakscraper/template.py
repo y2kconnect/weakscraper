@@ -857,6 +857,7 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
         i += 1
 
     elif not _attrs_match(tpl_child, node_html.attrs, debug):
+        # 检查node.attrs.keys()
         raise AttrsError(tpl_child, node_html)
 
     if debug and DEBUG_COMPARE:
