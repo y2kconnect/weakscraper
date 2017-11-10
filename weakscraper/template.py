@@ -405,7 +405,7 @@ def _compare__tag(node_tpl, node_html, results, debug=False):
             raise TagError(tpl_child, node_html)
         elif not _attrs_match(node_tpl, node_html.attrs, debug):
             # The properties defined in the template do not exist in the HTML
-            raise AttrsError(tpl_child, node_html)
+            raise AttrsError(node_tpl, node_html)
 
     if getattr(node_tpl, 'wp_info', None) is None and node_tpl.contents:
         _tpl__children(node_tpl, node_html, results, debug)
@@ -856,8 +856,8 @@ def _html_children_other(tpl_child, node_html, children_results, debug=False):
                 children_results[k] = v
         i += 1
 
-    # elif tpl_child.name != node_html.name:
-    #     raise TagError(tpl_child, node_html)
+    elif not _attrs_match(tpl_child, node_html.attrs, debug):
+        raise AttrsError(tpl_child, node_html)
 
     if debug and DEBUG_COMPARE:
         print('\n\ti: {}'.format(i))
