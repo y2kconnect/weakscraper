@@ -79,7 +79,12 @@ class TestBasic(unittest.TestCase):
 
         try:
             result_data = self.scraper.scrap(content)
-        except exceptions.TagError:
+        except exceptions.ExcessNodeError:
+            ''' 错误类型ExcessNodeError的原因：
+                <body>的内容，由bs4.NavigableString变成bs4.Tag了，导致
+            _html_children_other()忽略。因此错误类型也由TagError变成了
+            ExcessNodeError。
+            '''
             return
 
         self.assertTrue(False)

@@ -37,7 +37,7 @@ class TestWPList(unittest.TestCase):
 
         result_data = self.scraper.scrap(content)
 
-        self.assertEqual(result_data, {'sum': 0, 'str_sum': 0})
+        self.assertEqual(result_data, {})
 
 
     def test_sum(self):
