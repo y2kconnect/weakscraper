@@ -27,18 +27,13 @@ PossibleParams = (
         )
 
 
-DEBUG_TEMPLATEPARSER = False
-
-
-def template_parser(root, debug=False):
+def template_parser(root, logger=None):
     ''' 深度遍历, 处理标签属性wp-*
         node.wp_info，dict类型。记录模板节点的标记信息。
     '''
-    if debug and DEBUG_TEMPLATEPARSER:
-        print('''----------------
-                templateparser.template_parser(): ...
-                    debug: {}
-                    root: {}'''.format(debug, root))
+    SEP = 'templateparser.template_parser() --> '
+    if logger:
+        logger.info('{}root: {}'.format(SEP, root))
 
     # 堆栈
     arr_node = [root]
@@ -53,9 +48,9 @@ def template_parser(root, debug=False):
         x = getattr(node, 'attrs', None)
         if x:
             arr_wp = [k for k in x.keys() if k in PossibleParams]
-            if debug and DEBUG_TEMPLATEPARSER:
-                s = '\n----------------\nnode: {}\n\tattrs: {}\n\tarr_wp: {}'
-                print(s.format(node, node.attrs, arr_wp))
+            if logger:
+                s = '{}node: {}, attrs: {}, arr_wp: {}'
+                logger.info(s.format(SEP, node, node.attrs, arr_wp))
         if not arr_wp:
             continue
 
@@ -81,9 +76,9 @@ def template_parser(root, debug=False):
         if params:
             node.wp_info = {'params': params}
 
-        if debug and DEBUG_TEMPLATEPARSER:
-            s = '\n\t----------------\n\tattrs: {}\n\twp_info: {}'.format(
-                    node.attrs,
+        if logger:
+            s = '{}attrs: {}, wp_info: {}'.format(
+                    SEP, node.attrs,
                     node.wp_info if hasattr(node, 'wp_info') else None,
                     )
-            print(s)
+            logger.info(s)

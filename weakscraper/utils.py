@@ -7,8 +7,55 @@ import bs4
 import json
 import sys
 
+log_fmt = '[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s'
+log_fmt_with_pid = (
+        '[%(asctime)s] [%(process)d-%(processName)s] {%(filename)s:%(lineno)d}'
+        ' %(levelname)s - %(message)s'
+        )
 
-SEP = '-' * 16
+
+DEFAULT_LOGGING_CONFIG = {
+        'version': 1,
+        'disable_existing_loggers': True,
+        'formatters': {
+                'log_format': {
+                        'format': log_fmt,
+                        'datefmt': '%FT%T',
+                        },
+                'log_format_with_pid': {
+                        'format': log_fmt_with_pid,
+                        'datefmt': '%FT%T',
+                        },
+                },
+        'handlers': {
+                'console': {
+                        'class': 'logging.StreamHandler',
+                        'level': 'DEBUG',
+                        'formatter': 'log_format',
+                        'stream': 'ext://sys.stdout',
+                        },
+                'log_file': {
+                        'level': 'DEBUG',
+                        'class': 'logging.handlers.RotatingFileHandler',
+                        'formatter': 'log_format_with_pid',
+                        'filename': 'weakscraper_run.log',
+                        'mode': 'w',
+                        'maxBytes': 1024 * 1024 * 10,
+                        'backupCount': 5,
+                        },
+                },
+        'loggers': {
+                '': {
+                        'handlers': ['log_file'],
+                        'level': 'ERROR',
+                        },
+                'weakscraper': {
+                        'handlers': ['log_file'],
+                        'level': 'DEBUG',
+                        'propagate': False,
+                        },
+                },
+        }
 
 
 def node_to_json(node, arr_key=None):
@@ -34,7 +81,6 @@ def node_to_json(node, arr_key=None):
                                         }
                                 if 'functions' in x and x['functions']
                                     else None,
-                        'debug': x['debug'] if 'debug' in x else None,
                         }
             else:
                 info[s] = x
@@ -81,7 +127,9 @@ def show_DOM(root, label='root_tree', stream=sys.stdout, indent=4):
 
 
 def content_strip(root):
-    ''' 若 字符串.strip() == ''，则删除 '''
+    ''' 去除bs.NavigableString的前后空格。
+    若child.string.strip() == ""，则删除。
+    '''
     # 堆栈
     arr_node = [root]
 
@@ -90,10 +138,11 @@ def content_strip(root):
 
         if hasattr(node, 'contents'):
             [
-                    x.string.replace_with(x.string.strip())
-                        if x.string.strip() else x.extract()
-                    for x in node.contents
-                        if x.__class__.__name__ == 'NavigableString'
+                    child.string.replace_with(child.string.strip())
+                        # if child.string.strip() else child.decompose()
+                        if child.string.strip() else child.extract()
+                    for child in node.contents
+                        if child.__class__.__name__ == 'NavigableString'
                     ]
 
             if node.contents:

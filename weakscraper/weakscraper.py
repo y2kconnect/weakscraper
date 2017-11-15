@@ -5,31 +5,38 @@
 '''
 
 # python apps
+import json
+import logging.config
 from bs4 import BeautifulSoup
 
 # our apps
 from .template import init_tpl, compare
 from .templateparser import template_parser
-from .utils import content_strip, serialize
+from .utils import content_strip, serialize, DEFAULT_LOGGING_CONFIG 
 
 
 class WeakScraper:
+    json_kwargs = dict(ensure_ascii=False, indent=4)
+    logger = None
+
     def __init__(self, stream_tpl, functions=None, debug=False):
         ''' 初始化
             stream_tpl          类型: 文件 或者 字符串
             functions           类型: 函数
             debug               类型: 布尔值
         '''
-        self.debug = debug
+        if debug:
+            logging.config.dictConfig(DEFAULT_LOGGING_CONFIG )
+            self.logger = logging.getLogger('weakscraper')
 
         tree_tpl = BeautifulSoup(stream_tpl, 'lxml')
         content_strip(tree_tpl)
 
-        template_parser(tree_tpl, debug)
+        template_parser(tree_tpl, self.logger)
         self.info = {'tree_tpl': serialize(tree_tpl)}
 
         # 处理标签的"wp-*"属性
-        init_tpl(tree_tpl, functions, debug)
+        init_tpl(tree_tpl, functions, self.logger)
         self.tree_tpl = tree_tpl
         self.info['tree_Template'] = serialize(self.tree_tpl)
 
@@ -39,25 +46,23 @@ class WeakScraper:
 
         self.info['tree_html'] = serialize(tree_html)
 
-        if self.debug:
-            import json
-            info = dict(ensure_ascii=False, indent=4)
-            sep = '\n' + '-' * 40
-            s_tree_tpl = json.dumps(self.info['tree_tpl'], **info)
-            s_tree_html = json.dumps(self.info['tree_html'], **info)
-            s_tree_Template = json.dumps(self.info['tree_Template'], **info)
+        if self.logger:
+            s_tree_tpl = json.dumps(self.info['tree_tpl'], **self.json_kwargs)
+            s_tree_html = json.dumps(self.info['tree_html'],
+                    **self.json_kwargs)
+            s_tree_Template = json.dumps(self.info['tree_Template'],
+                    **self.json_kwargs)
 
-            s = '\n{sep}\ntree_tpl:\n{tree_tpl}\n{sep}\ntree_html:\n' \
-                    '{tree_html}\n{sep}\ntree_Template:\n{tree_Template}' \
-                    .format(
-                            sep=sep,
-                            tree_tpl=s_tree_tpl,
-                            tree_html=s_tree_html,
-                            tree_Template=s_tree_Template,
-                            )
-            print(s)
+            s = '{sep}tree_tpl: {tree_tpl}, tree_html: {tree_html}, ' \
+                    'tree_Template: {tree_Template}'.format(
+                    sep='WeakScraper.scrap() --> ',
+                    tree_tpl=s_tree_tpl,
+                    tree_html=s_tree_html,
+                    tree_Template=s_tree_Template,
+                    )
+            self.logger.info(s)
 
-        results = compare(self.tree_tpl, tree_html, self.debug)
+        results = compare(self.tree_tpl, tree_html, self.logger)
         self.info['results'] = results
 
         return results

@@ -40,19 +40,15 @@ class TestSerialize(unittest.TestCase):
                             "nodetype": "Tag",
                             "name": "head",
                             "attrs": {},
-                            "contents": [
-                                {
-                                    "nodetype": "Tag",
-                                    "name": "title",
-                                    "attrs": {},
-                                    "contents": [
-                                        {
-                                            "nodetype": "NavigableString",
-                                            "content": "Title"
-                                            }
-                                        ]
-                                    }
-                                ]
+                            "contents": [{
+                                "nodetype": "Tag",
+                                "name": "title",
+                                "attrs": {},
+                                "contents": [{
+                                    "nodetype": "NavigableString",
+                                    "content": "Title"
+                                    }]
+                                }]
                             },
                         {
                             "nodetype": "Tag",
@@ -61,31 +57,25 @@ class TestSerialize(unittest.TestCase):
                             "wp_info": {
                                 "params": {"wp-name": "body"},
                                 "functions": None,
-                                "debug": False
                                 },
-                            "contents": [
-                                {
+                            "contents": [{
+                                "nodetype": "Tag",
+                                "name": "div",
+                                "attrs": {},
+                                "contents": [{
                                     "nodetype": "Tag",
-                                    "name": "div",
+                                    "name": "texts-and-nuggets",
                                     "attrs": {},
-                                    "contents": [
-                                        {
-                                            "nodetype": "Tag",
-                                            "name": "texts-and-nuggets",
-                                            "attrs": {},
-                                            "wp_info": {
-                                                "params": {
-                                                    "regex": "Hi\\ \\!\\ My\\ name\\ is(.*)\\.",
-                                                    "names": ["name"],
-                                                    "functions": [None]
-                                                    },
-                                                "functions": None,
-                                                "debug": False
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
+                                    "wp_info": {
+                                        "params": {
+                                            "regex": "Hi\\ \\!\\ My\\ name\\ is(.*)\\.",
+                                            "names": ["name"],
+                                            "functions": [None]
+                                            },
+                                        "functions": None,
+                                        }
+                                    }]
+                                }]
                             }
                         ]
                     }
