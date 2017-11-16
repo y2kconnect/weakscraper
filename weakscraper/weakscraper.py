@@ -19,15 +19,19 @@ class WeakScraper:
     json_kwargs = dict(ensure_ascii=False, indent=4)
     logger = None
 
-    def __init__(self, stream_tpl, functions=None, debug=False):
+    def __init__(self, stream_tpl, functions=None, logger=None, debug=False):
         ''' 初始化
             stream_tpl          类型: 文件 或者 字符串
             functions           类型: 函数
+            logger              类型: logging.getLogger()实例
             debug               类型: 布尔值
         '''
         if debug:
-            logging.config.dictConfig(DEFAULT_LOGGING_CONFIG )
-            self.logger = logging.getLogger('weakscraper')
+            if logger:
+                self.logger = logger
+            else:
+                logging.config.dictConfig(DEFAULT_LOGGING_CONFIG )
+                self.logger = logging.getLogger('weakscraper')
 
         tree_tpl = BeautifulSoup(stream_tpl, 'lxml')
         content_strip(tree_tpl)
