@@ -24,7 +24,7 @@ def init_tpl(root_tpl, functions=None, logger=None):
     SEP = 'init_tpl() --> '
     if logger:
         s = '{SEP}root_tpl: {root_tpl}, functions: {functions}'.format(
-                SEP=SEP, root_tpl=serialize(root_tpl), functions=functions,
+                SEP=SEP, functions=functions, root_tpl=serialize(root_tpl),
                 )
         logger.info(s)
 
@@ -62,7 +62,8 @@ def _init_tag(node, info_default, logger=None):
     SEP = '_init_tag() --> '
     if logger:
         s = '{SEP}node: {node}, info_default: {info_default}'.format(
-                SEP=SEP, node=node_to_json(node), info_default=info_default,
+                SEP=SEP, info_default=info_default,
+                node=node_to_json(node, ['name', 'attrs', 'wp_info']),
                 )
         logger.info(s)
 
@@ -138,7 +139,10 @@ def _check_text_flag(node, info_default, logger=None):
     'check node.children: text or wp-nugget'
     SEP = '_check_text_flag() --> '
     if logger:
-        s = '{SEP}node: {node}'.format(SEP=SEP, node=node_to_json(node))
+        s = '{SEP}node: {node}'.format(
+                SEP=SEP,
+                node=node_to_json(node, ['name', 'attrs', 'wp_info']),
+                )
         logger.info(s)
 
     arr = [
@@ -274,7 +278,9 @@ def compare(node_tpl, node_html, logger=None):
     SEP = 'compare() --> '
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 )
         logger.info(s)
     results = {}
@@ -300,7 +306,9 @@ def _compare__text(node_tpl, node_html, logger=None):
     SEP = '_compare__text() --> '
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 )
         logger.info(s)
 
@@ -318,7 +326,9 @@ def _compare__nugget(node_tpl, node_html, results, logger=None):
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}, results: ' \
                 '{results}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 results=results,
                 )
         logger.info(s)
@@ -337,7 +347,8 @@ def _f(node_tpl, obj, logger=None):
     SEP = '_f() --> '
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, obj: {obj}'.format(
-                SEP=SEP, node_tpl=node_tpl, obj=obj,
+                SEP=SEP, obj=obj,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
                 )
         logger.info(s)
 
@@ -362,7 +373,9 @@ def _compare__texts_and_nuggets(node_tpl, node_html, results, logger=None):
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}, results: ' \
                 '{results}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 results=results,
                 )
         logger.info(s)
@@ -398,7 +411,9 @@ def _compare__tag(node_tpl, node_html, results, logger=None):
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}, results: ' \
                 '{results}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 results=results,
                 )
         logger.info(s)
@@ -441,7 +456,8 @@ def _attrs_match(node_tpl, attrs_html, logger=None):
     SEP = '_attrs_match() --> '
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, attrs_html: {attrs_html}'.format(
-                SEP=SEP, node_tpl=node_tpl, attrs_html=attrs_html,
+                SEP=SEP, attrs_html=attrs_html,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
                 )
         logger.info(s)
 
@@ -487,7 +503,9 @@ def _tpl__wp_name_attrs(node_tpl, node_html, results, logger=None):
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}, results: ' \
                 '{results}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 results=results,
                 )
         logger.info(s)
@@ -513,7 +531,9 @@ def _tpl__wp_leaf(node_tpl, node_html, results, logger=None):
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}, results: ' \
                 '{results}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 results=results,
                 )
         logger.info(s)
@@ -565,7 +585,9 @@ def _tpl__wp_recursive(node_tpl, node_html, logger=None):
     SEP = '_tpl__wp_recursive() --> '
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 )
         logger.info(s)
 
@@ -588,7 +610,10 @@ def _get_all_content(node_html, logger=None):
     'wp-recursive-text: get all the text'
     SEP = '_get_all_content() --> '
     if logger:
-        s = '{SEP}node_html: {node_html}'.format(SEP=SEP, node_html=node_html)
+        s = '{SEP}node_html: {node_html}'.format(
+                SEP=SEP,
+                node_html=node_to_json(node_html, ['name', 'attrs']),
+                )
         logger.info(s)
 
     arr = [
@@ -608,7 +633,9 @@ def _tpl__attr_name_dict(node_tpl, node_html, logger=None):
     SEP = '_tpl__attr_name_dict() --> '
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 )
         logger.info(s)
 
@@ -633,7 +660,9 @@ def _tpl__children(node_tpl, node_html, results, logger=None):
     if logger:
         s = '{SEP}node_tpl: {node_tpl}, node_html: {node_html}, results: ' \
                 '{results}'.format(
-                SEP=SEP, node_tpl=node_tpl, node_html=node_html,
+                SEP=SEP,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 results=results,
                 )
         logger.info(s)
@@ -710,7 +739,8 @@ def _html_children_skip(arr, i, n, logger=None):
 
     if logger:
         s = '{SEP}arr: {arr}, i: {i}, n: {n}'.format(
-                SEP=SEP, arr=arr, i=i, n=n,
+                SEP=SEP, i=i, n=n,
+                arr=[node_to_json(x, ['name', 'attrs', 'wp_info']) for x in arr],
                 )
         logger.info(s)
 
@@ -729,7 +759,9 @@ def _compare_wrapper(tpl_child, node_html, logger=None):
     SEP = '_compare_wrapper() --> '
     if logger:
         s = '{SEP}tpl_child: {tpl_child}, node_html: {node_html}'.format(
-                SEP=SEP, tpl_child=tpl_child, node_html=node_html,
+                SEP=SEP,
+                tpl_child=node_to_json(tpl_child, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 )
         logger.info(s)
 
@@ -754,7 +786,9 @@ def _html_children_until(tpl_child, arr_html, i, n, logger=None):
     if logger:
         s = '{SEP}tpl_child: {tpl_child}, arr_html: {arr_html}, i: {i}, n: ' \
                 '{n}'.format(
-                SEP=SEP, tpl_child=tpl_child, arr_html=arr_html, i=i, n=n,
+                SEP=SEP, i=i, n=n,
+                tpl_child=node_to_json(tpl_child, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 )
         logger.info(s)
 
@@ -784,9 +818,9 @@ def _html_children_wp_list(
         s = '{SEP}tpl_child: {tpl_child}, arr_html: {arr_html}, html_i: ' \
                 '{html_i}, html_n: {html_n}, children_results: ' \
                 '{children_results}'.format(
-                SEP=SEP, tpl_child=tpl_child, arr_html=arr_html,
-                html_i=html_i, html_n=html_n,
+                SEP=SEP, arr_html=arr_html, html_i=html_i, html_n=html_n,
                 children_results=children_results,
+                node_tpl=node_to_json(node_tpl, ['name', 'attrs', 'wp_info']),
                 )
         logger.info(s)
 
@@ -824,7 +858,9 @@ def _check_flag(tpl_child, node_html, logger=None):
     SEP = '_check_flag() --> '
     if logger:
         s = '{SEP}tpl_child: {tpl_child}, node_html: {node_html}'.format(
-                SEP=SEP, tpl_child=tpl_child, node_html=node_html,
+                SEP=SEP,
+                tpl_child=node_to_json(tpl_child, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 )
         logger.info(s)
 
@@ -853,8 +889,9 @@ def _html_children_other(tpl_child, node_html, children_results, logger=None):
     if logger:
         s = '{SEP}tpl_child: {tpl_child}, node_html: {node_html}, ' \
                 'children_results: {children_results}'.format(
-                SEP=SEP, tpl_child=tpl_child, node_html=node_html,
-                children_results=children_results,
+                SEP=SEP, children_results=children_results,
+                tpl_child=node_to_json(tpl_child, ['name', 'attrs', 'wp_info']),
+                node_html=node_to_json(node_html, ['name', 'attrs']),
                 )
         logger.info(s)
 

@@ -57,8 +57,8 @@ class WeakScraper:
             s_tree_Template = json.dumps(self.info['tree_Template'],
                     **self.json_kwargs)
 
-            s = '{sep}tree_tpl: {tree_tpl}, tree_html: {tree_html}, ' \
-                    'tree_Template: {tree_Template}'.format(
+            s = '{sep}\ntree_tpl: {tree_tpl}\ntree_html: {tree_html}' \
+                    '\ntree_Template: {tree_Template}'.format(
                     sep='WeakScraper.scrap() --> ',
                     tree_tpl=s_tree_tpl,
                     tree_html=s_tree_html,

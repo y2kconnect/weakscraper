@@ -4,7 +4,7 @@ import collections
 import json
 
 # our apps
-from .utils import serialize
+from .utils import serialize, node_to_json
 
 
 class CompareError(Exception):
@@ -17,37 +17,15 @@ class CompareError(Exception):
             self.genealogy.appendleft(template)
 
     def __str__(self):
-        arr = [
-                '{} detected !'.format(self.__class__.__name__),
-                'Template genealogy :'
-                ]
-
-        for template in self.genealogy:
-            arr_attr = ['name={}'.format(template.name)]
-            if hasattr(template, 'attrs'):
-                s = 'attrs={}'.format(template.attrs)
-                arr_attr.append(s)
-            if hasattr(template, 'wp_info'):
-                s = 'wp_info={}'.format(str(template.wp_info))
-                arr_attr.append(s)
-            if isinstance(template, bs4.NavigableString):
-                s = 'content="{}"'.format(template.string)
-                arr_attr.append(s)
-
-            msg = '{SEP}<{class_name}: ({arr_attr})>'.format(
-                    SEP=' ' * 4,
-                    class_name=template.__class__.__name__,
-                    arr_attr='; '.join(arr_attr)
-                    )
-            arr.append(msg)
-
-        arr.extend([
-                'Html element :',
-                json.dumps(serialize(self.html), ensure_ascii=False, indent=2),
-                ])
-
-        ret = '\n'.join(arr)
-        return ret
+        msg = '{} detected !\nTemplate genealogy:\n\t{}\nHtml element:\n\t{}'.format(
+                self.__class__.__name__,
+                [
+                        node_to_json(tpl_child, ['name', 'attrs', 'wp_info'])
+                        for tpl_child in self.genealogy
+                        ],
+                node_to_json(self.html, ['name', 'attrs']),
+                )
+        return msg
 
 
 class NodetypeError(CompareError):
