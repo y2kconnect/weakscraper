@@ -735,6 +735,7 @@ def _tpl__children(node_tpl, node_html, results, logger=None):
 
 
 def _html_children_skip(arr, i, n, logger=None):
+    '忽略注释和js脚本'
     SEP = '_html_children_skip() --> '
 
     if logger:
@@ -744,7 +745,14 @@ def _html_children_skip(arr, i, n, logger=None):
                 )
         logger.info(s)
 
-    while i < n and isinstance(arr[i], bs4.Tag) and arr[i].name == 'script':
+    while (
+            i < n
+            and (
+                    isinstance(arr[i], bs4.Comment)
+                    or isinstance(arr[i], bs4.Tag)
+                    and arr[i].name == 'script'
+                    )
+            ):
         i += 1
 
     if logger:

@@ -5,8 +5,10 @@
 # python apps
 import bs4
 import json
+import re
 import sys
 
+regex_comment = re.compile(r'^(<!--).*(-->)$')
 log_fmt = '[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s'
 log_fmt_with_pid = (
         '[%(asctime)s] [%(process)d-%(processName)s] {%(filename)s:%(lineno)d}'
@@ -128,7 +130,7 @@ def show_DOM(root, label='root_tree', stream=sys.stdout, indent=4):
 
 def content_strip(root):
     ''' 去除bs.NavigableString的前后空格。
-    若child.string.strip() == ""，则删除。
+    若child.string.strip() in ('', '<!-- ... -->')，则删除。
     '''
     # 堆栈
     arr_node = [root]
@@ -137,13 +139,20 @@ def content_strip(root):
         node = arr_node.pop()
 
         if hasattr(node, 'contents'):
-            [
-                    child.string.replace_with(child.string.strip())
-                        # if child.string.strip() else child.decompose()
-                        if child.string.strip() else child.extract()
-                    for child in node.contents
-                        if child.__class__.__name__ == 'NavigableString'
-                    ]
+            arr = []
+            for child in node.contents:
+                if child.__class__.__name__ == 'NavigableString':
+                    msg = child.string.strip()
+                    if msg:
+                        m = regex_comment.match(msg)
+                        if m:
+                            arr.append(child)
+                        else:
+                            child.string.replace_with(msg)
+                    else:
+                        arr.append(child)
+            if arr:
+                [child.extract() for child in arr]
 
             if node.contents:
                 arr_node.extend(reversed(node.contents))
