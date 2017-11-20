@@ -5,10 +5,8 @@
 # python apps
 import bs4
 import json
-import re
 import sys
 
-regex_comment = re.compile(r'^(<!--).*(-->)$')
 log_fmt = '[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s'
 log_fmt_with_pid = (
         '[%(asctime)s] [%(process)d-%(processName)s] {%(filename)s:%(lineno)d}'
@@ -143,13 +141,13 @@ def content_strip(root):
             for child in node.contents:
                 if child.__class__.__name__ == 'NavigableString':
                     msg = child.string.strip()
-                    if msg:
-                        m = regex_comment.match(msg)
-                        if m:
-                            arr.append(child)
-                        else:
-                            child.string.replace_with(msg)
+                    if msg and not (
+                            msg.startswith('<!--')
+                            and msg.endswith('-->')
+                            ):
+                        child.string.replace_with(msg)
                     else:
+                        # 空字符串 or 注释
                         arr.append(child)
             if arr:
                 [child.extract() for child in arr]
